@@ -1,4 +1,4 @@
-"""Verified, opt-in macOS application updates from an HTTPS JSON feed."""
+"""Verified application updates from an HTTPS JSON feed."""
 from __future__ import annotations
 
 import hashlib
@@ -14,6 +14,7 @@ import tempfile
 import urllib.error
 import urllib.request
 import zipfile
+import platform
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -78,10 +79,10 @@ def check(config: dict, resource_dir: Path) -> dict:
         raise ValueError("不支持的更新信息格式")
     version = str(data.get("version") or "")
     newer = version_tuple(version) > version_tuple(APP_VERSION)
-    asset = (data.get("platforms") or {}).get("macos-arm64")
+    asset = (data.get("platforms") or {}).get(platform_key())
     if newer:
         if not isinstance(asset, dict):
-            raise ValueError("新版本没有 macOS Apple 芯片安装包")
+            raise ValueError("新版本没有此设备对应的安装包")
         https_url(str(asset.get("url") or ""))
         if not re.fullmatch(r"[0-9a-fA-F]{64}", str(asset.get("sha256") or "")):
             raise ValueError("更新文件缺少有效的 SHA-256 校验值")
@@ -93,10 +94,22 @@ def check(config: dict, resource_dir: Path) -> dict:
             "asset": asset if newer else None}
 
 
+def platform_key() -> str:
+    if sys.platform == "darwin":
+        return "macos-arm64" if platform.machine().lower() in {"arm64", "aarch64"} else "macos-x86_64"
+    if sys.platform == "win32":
+        return "windows-x86_64" if platform.machine().lower() in {"amd64", "x86_64"} else "windows-x86"
+    raise RuntimeError("此版本暂不支持应用内更新")
+
+
 def current_app() -> Path:
-    if sys.platform != "darwin" or not getattr(sys, "frozen", False):
-        raise RuntimeError("应用内安装只支持打包后的 macOS 版本")
+    if not getattr(sys, "frozen", False):
+        raise RuntimeError("应用内安装只支持已打包的版本")
     executable = Path(sys.executable).absolute()
+    if sys.platform == "win32":
+        return executable.parent
+    if sys.platform != "darwin":
+        raise RuntimeError("此版本暂不支持应用内安装")
     for parent in executable.parents:
         if parent.suffix == ".app":
             return parent
@@ -140,10 +153,12 @@ def download_and_stage(release: dict, app_data: Path, progress=lambda message: N
         with zipfile.ZipFile(archive) as zf:
             total = 0
             symlinks = []
+            is_windows = sys.platform == "win32"
             for item in zf.infolist():
                 name = item.filename
                 parts = Path(name).parts
-                if (not parts or parts[0] != APP_NAME or Path(name).is_absolute()
+                expected_root = None if is_windows else APP_NAME
+                if (not parts or (expected_root and parts[0] != expected_root) or Path(name).is_absolute()
                         or any(part in {"..", "."} for part in parts)):
                     raise ValueError("安装包包含不安全的文件路径")
                 total += item.file_size
@@ -151,6 +166,8 @@ def download_and_stage(release: dict, app_data: Path, progress=lambda message: N
                     raise ValueError("安装包解压后过大")
                 path = unpacked / name
                 if stat.S_ISLNK(item.external_attr >> 16):
+                    if is_windows:
+                        raise ValueError("Windows 更新包不能包含符号链接")
                     symlinks.append(item)
                     continue
                 if item.is_dir():
@@ -171,7 +188,14 @@ def download_and_stage(release: dict, app_data: Path, progress=lambda message: N
                     raise ValueError("安装包包含不安全的符号链接")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.symlink_to(target)
-        candidate = unpacked / APP_NAME
+        candidate = unpacked if sys.platform == "win32" else unpacked / APP_NAME
+        if sys.platform == "win32":
+            executable = candidate / "Glow Craft Launcher.exe"
+            version_file = candidate / "version.txt"
+            if not executable.is_file() or not version_file.is_file() or version_file.read_text(encoding="utf-8").strip() != version:
+                raise ValueError("Windows 安装包的程序或版本号不匹配")
+            archive.unlink()
+            return {"version": version, "path": str(candidate), "stage_dir": str(stage_dir)}
         info = candidate / "Contents/Info.plist"
         if not info.is_file():
             raise ValueError("安装包中没有 Glow Craft Launcher.app")
@@ -191,6 +215,21 @@ def install_after_quit(staged: dict, current: Path, helper: Path, app_data: Path
     candidate = Path(staged["path"]).absolute()
     if not candidate.is_dir() or not candidate.is_relative_to(app_data / "updates"):
         raise ValueError("更新文件未准备好")
+    if sys.platform == "win32":
+        if not (current / "Glow Craft Launcher.exe").is_file():
+            raise ValueError("当前应用程序目录不正确")
+        if not helper.is_file():
+            raise FileNotFoundError("缺少 Windows 更新安装程序")
+        helper_copy = app_data / "updates" / "install-update.ps1"
+        shutil.copy2(helper, helper_copy)
+        backup = current.with_name(current.name + ".previous")
+        log = app_data / "updater.log"
+        with log.open("a", encoding="utf-8") as output:
+            subprocess.Popen(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(helper_copy),
+                              str(os.getpid()), str(current), str(candidate), str(backup)],
+                             stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT,
+                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), close_fds=True)
+        return
     if current.name != APP_NAME:
         raise ValueError("当前应用名称不符")
     if not os.access(current.parent, os.W_OK):

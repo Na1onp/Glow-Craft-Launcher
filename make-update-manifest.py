@@ -1,29 +1,26 @@
-"""Print an update.json for a released macOS application ZIP."""
+"""Print an update.json for platform release archives."""
 import hashlib
 import json
-import plistlib
 import sys
-import zipfile
 from pathlib import Path
 
 
 def main():
-    if len(sys.argv) != 3:
-        raise SystemExit("用法: python make-update-manifest.py 安装包.zip https://下载地址.zip")
-    archive = Path(sys.argv[1])
-    url = sys.argv[2]
-    if not url.startswith("https://"):
-        raise SystemExit("下载地址必须使用 HTTPS")
-    with zipfile.ZipFile(archive) as zf:
-        with zf.open("Glow Craft Launcher.app/Contents/Info.plist") as stream:
-            info = plistlib.load(stream)
-    if info.get("CFBundleIdentifier") != "cn.glowcraft.launcher":
-        raise SystemExit("应用标识不符")
-    digest = hashlib.sha256()
-    with archive.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    print(json.dumps({"schema": 1, "version": info["CFBundleShortVersionString"], "notes": "Glow Craft Launcher 更新", "platforms": {"macos-arm64": {"url": url, "sha256": digest.hexdigest(), "size": archive.stat().st_size}}}, ensure_ascii=False, indent=2))
+    if len(sys.argv) < 4 or (len(sys.argv) - 2) % 2:
+        raise SystemExit("用法: python make-update-manifest.py 版本 平台 安装包.zip [平台 安装包.zip ...]")
+    version = sys.argv[1]
+    platforms = {}
+    for key, filename in zip(sys.argv[2::2], sys.argv[3::2]):
+        archive = Path(filename)
+        if key not in {"macos-arm64", "macos-x86_64", "windows-x86_64"} or not archive.is_file():
+            raise SystemExit(f"无效的平台或安装包: {key} {filename}")
+        digest = hashlib.sha256()
+        with archive.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        platforms[key] = {"url": f"https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/v{version}/{archive.name}",
+                          "sha256": digest.hexdigest(), "size": archive.stat().st_size}
+    print(json.dumps({"schema": 1, "version": version, "notes": "Glow Craft Launcher 更新", "platforms": platforms}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

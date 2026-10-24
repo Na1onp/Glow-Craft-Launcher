@@ -124,8 +124,7 @@ class Bridge(QObject):
         if not ok:
             return self.state()
         token = token.strip()
-        client = SakuraFrp(token)
-        client.request("/user/info")
+        SakuraFrp(token).request("/user/info")
         import keyring
         keyring.set_password("glow-craft-launcher-sakurafrp", "access-token", token)
         return self.state()
@@ -133,16 +132,15 @@ class Bridge(QObject):
     @staticmethod
     def _frpc_path():
         root = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
-        executable = "frpc.exe" if os.name == "nt" else "frpc"
-        path = root / executable
+        path = root / ("frpc.exe" if os.name == "nt" else "frpc")
         if not path.is_file():
-            raise FileNotFoundError("GCL 内置的联机组件 frpc 不在安装包中，请更新到包含联机功能的版本")
+            raise FileNotFoundError("GCL 安装包缺少内置联机组件 frpc，请安装包含联机功能的版本")
         return path
 
     def _host_room(self, port, progress):
         token = self._sakura_token()
         if not token:
-            raise ValueError("请先在首页点击“创建联机房间”绑定 SakuraFrp 访问密钥")
+            raise ValueError("请先绑定 SakuraFrp 访问密钥")
         if self.room_process and self.room_process.poll() is None:
             raise ValueError("联机房间已经开启；请先关闭当前房间")
         frpc_path = self._frpc_path()
@@ -155,27 +153,26 @@ class Bridge(QObject):
             if os.name != "nt":
                 config_path.chmod(0o600)
             log_path = core.app_dir() / "sakurafrp-room.log"
-            log_file = log_path.open("ab")
-            self.room_process = subprocess.Popen(
-                [str(frpc_path), "-c", str(config_path)], cwd=str(core.app_dir()),
-                stdin=subprocess.DEVNULL, stdout=log_file, stderr=subprocess.STDOUT,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-            time.sleep(1.5)
+            with log_path.open("wb") as log_file:
+                self.room_process = subprocess.Popen(
+                    [str(frpc_path), "-c", str(config_path)], cwd=str(core.app_dir()),
+                    stdin=subprocess.DEVNULL, stdout=log_file, stderr=subprocess.STDOUT,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            time.sleep(1.2)
             if self.room_process.poll() is not None:
-                log_file.close()
                 detail = log_path.read_text(encoding="utf-8", errors="replace")[-1800:]
-                raise RuntimeError("穿透客户端未能启动：" + (detail.strip() or "请查看联机日志"))
+                raise RuntimeError("穿透组件未能启动：" + (detail.strip() or "请检查联机日志"))
         except Exception:
             config_path.unlink(missing_ok=True)
             try:
                 client.delete_tunnel(room["id"])
             except Exception:
                 logging.exception("Could not remove failed SakuraFrp tunnel")
+            self.room_process = None
             raise
         self.room_config_path = config_path
         self.room_info = {"endpoint": room["endpoint"], "node": room["node"], "id": room["id"]}
-        result = {"endpoint": room["endpoint"], "node": room["node"], "warning": room["warning"]}
-        return result
+        return {"endpoint": room["endpoint"], "node": room["node"], "warning": room["warning"]}
 
     def _stop_room(self):
         process, self.room_process = self.room_process, None
@@ -341,7 +338,7 @@ class Bridge(QObject):
             return {"cancelled": not ok, "port": port}
         if op == "host_room":
             if not self._sakura_token():
-                QMessageBox.information(self.window, "绑定 SakuraFrp", "首次创建房间需要绑定自己的 SakuraFrp 访问密钥。接下来会打开 SakuraFrp 官网。")
+                QMessageBox.information(self.window, "绑定 SakuraFrp", "首次创建房间需要绑定自己的 SakuraFrp 访问密钥。接下来会打开官网。")
                 self._bind_sakura()
             if not self._sakura_token():
                 raise ValueError("尚未绑定 SakuraFrp 账号")
@@ -380,8 +377,9 @@ class Bridge(QObject):
         if op == "install_update":
             if not self.staged_update:
                 raise ValueError("请先下载更新")
+            helper_name = "update-install.ps1" if sys.platform == "win32" else "update-install.sh"
             updater.install_after_quit(self.staged_update, updater.current_app(),
-                                       Path(__file__).with_name("update-install.sh"), core.app_dir())
+                                       Path(__file__).with_name(helper_name), core.app_dir())
             QTimer.singleShot(100, QApplication.instance().quit)
             return True
         if op == "versions":
@@ -394,6 +392,17 @@ class Bridge(QObject):
             item = core.instance(self.config, args["instance"]) if args.get("instance") else None
             return self.start("releases", lambda progress: features.project_releases(
                 args["project"], args["kind"], item))
+        if op == "mod_icons":
+            item = core.instance(self.config, args["instance"])
+            return self.start("mod_icons", lambda progress: features.mod_file_icons(
+                args.get("files", []), item))
+        if op == "plan_mod_cart":
+            item = core.instance(self.config, args["instance"])
+            roots = args.get("roots", [])
+            return self.start("plan_mod_cart", lambda progress: features.resolve_mod_cart(item, roots))
+        if op == "install_mod_cart":
+            return self.start("install_mod_cart", lambda progress: features.install_mod_cart(
+                self.config, args["instance"], args.get("roots", []), progress))
         if op == "install_game":
             version, loader = args["version"], args["loader"]
             folder = str(args.get("folder") or "First")

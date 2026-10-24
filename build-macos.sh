@@ -24,7 +24,7 @@ fi
   --icon icon.icns \
   --add-data "ui.html:." --add-data "ui.js:." \
   --add-data "skinview3d.min.js:." --add-data "lucide.min.js:." \
-  --add-data "THIRD_PARTY.md:." --add-data "update-channel.json:." \
+  --add-data "THIRD_PARTY.md:." --add-data "icon.png:." --add-data "update-channel.json:." \
   --add-data "update-install.sh:." --add-data "licenses:licenses" \
   --add-binary ".gcl-build/frpc:." \
   --collect-all minecraft_launcher_lib --collect-all keyring "$@" app_web.py

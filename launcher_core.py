@@ -238,11 +238,18 @@ def rename_instance(config: dict, identifier: str, name: str) -> dict:
 
 def list_mod_files(config: dict, identifier: str) -> list[dict]:
     folder = instance_folder(config, identifier, "mods")
+    metadata_path = folder / ".gcl-mod-metadata.json"
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        metadata = {}
     files = []
     for path in sorted(folder.iterdir(), key=lambda item: item.name.casefold()):
         if path.is_file() and path.name.lower().endswith((".jar", ".jar.disabled")):
-            files.append({"name": path.name.removesuffix(".disabled"),
-                          "enabled": path.suffix.lower() == ".jar"})
+            filename = path.name.removesuffix(".disabled")
+            files.append({"name": filename,
+                          "enabled": path.suffix.lower() == ".jar",
+                          **(metadata.get(filename, {}) if isinstance(metadata, dict) else {})})
     return files
 
 
@@ -300,7 +307,6 @@ def launch_instance(config: dict, identifier: str, account: dict, server_address
         options["executablePath"] = java_path
     command = mll.command.get_minecraft_command(version_id, base_dir(config), options)
     if server_address:
-        # Minecraft's standard client flags open directly on a multiplayer server.
         host, separator, port_text = server_address.strip().rpartition(":")
         if not separator or not host or not port_text.isdecimal() or not 1 <= int(port_text) <= 65535:
             raise ValueError("服务器地址格式应为 域名或IP:端口")

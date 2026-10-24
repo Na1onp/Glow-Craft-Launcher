@@ -80,10 +80,31 @@ def search_projects(query: str, kind: str, instance: dict | None,
             if loader == "vanilla":
                 return {"hits": [], "total_hits": 0, "offset": 0}
             facets.append([f"categories:{loader}"])
-    data = _get("/search", {"query": query.strip(), "facets": json.dumps(facets),
+    raw_query = query.strip()
+    if kind == "mod" and raw_query:
+        normalized = re.sub(r"[\s_-]+", "", raw_query).casefold()
+        aliases = {
+            "苹果皮": "AppleSkin", "appleskin": "AppleSkin",
+            "钠": "Sodium", "钠素": "Sodium", "光影加载器": "Iris",
+            "玉髓": "Jade", "物品栏信息": "Jade", "旅程地图": "JourneyMap",
+            "旅途地图": "JourneyMap", "小地图": "Xaero's Minimap",
+            "世界地图": "Xaero's World Map", "群峦": "TerraFirmaCraft",
+            "模组菜单": "Mod Menu", "布料api": "Fabric API",
+            "布料接口": "Fabric API", "物品查看": "Just Enough Items",
+            "jei": "Just Enough Items", "rei": "Roughly Enough Items",
+            "emi": "EMI", "光影": "Iris", "优化": "Sodium",
+            "投影": "Litematica", "微调": "Tweakeroo",
+        }
+        raw_query = aliases.get(normalized, raw_query)
+    data = _get("/search", {"query": raw_query, "facets": json.dumps(facets),
                             "limit": 30, "offset": max(0, min(offset, 990)),
                             "index": "relevance" if query.strip() else "downloads"})
+    localized = {"appleskin": "苹果皮", "sodium": "钠优化", "fabric-api": "Fabric 前置",
+                 "journeymap": "旅程地图", "xaeros-minimap": "Xaero 小地图",
+                 "xaeros-world-map": "Xaero 世界地图", "jade": "信息提示",
+                 "modmenu": "模组菜单", "tweakeroo": "灵活功能", "litematica": "投影"}
     hits = [{"id": item.get("project_id"), "title": item.get("title", ""),
+                      "localized_title": localized.get(str(item.get("slug", "")).casefold(), ""),
                       "description": item.get("description", ""),
                       "icon_url": item.get("icon_url", ""),
                       "author": item.get("author", ""),
@@ -95,6 +116,68 @@ def search_projects(query: str, kind: str, instance: dict | None,
         item["icon_data"] = icon
     return {"hits": hits,
             "total_hits": data.get("total_hits", 0), "offset": data.get("offset", offset)}
+
+
+def resolve_mod_cart(instance: dict, roots: list[dict]) -> dict:
+    """Validate cart releases and build the unique required dependency plan."""
+    if not roots:
+        raise ValueError("购物车是空的")
+    nodes: dict[str, dict] = {}
+    visiting: set[str] = set()
+
+    def visit(project_id: str, release_id: str, required: bool = False):
+        if release_id in {node["release_id"] for node in nodes.values()}:
+            return
+        if release_id in visiting:
+            return
+        visiting.add(release_id)
+        release = _get(f"/version/{quote(release_id)}")
+        if release.get("project_id") != project_id:
+            raise ValueError("购物车中的发布文件与模组不匹配")
+        game_versions = release.get("game_versions", [])
+        loaders = release.get("loaders", [])
+        if instance["game_version"] not in game_versions or instance["loader"] not in loaders:
+            raise ValueError(f"{release.get('name') or project_id} 与当前 Minecraft 版本或加载器不兼容")
+        project = _get(f"/project/{quote(project_id)}")
+        node = {"id": project_id, "release_id": release_id,
+                "title": project.get("title") or release.get("name") or project_id,
+                "version": release.get("version_number", ""),
+                "icon_data": _icon_data(project.get("icon_url", "")),
+                "required": required, "dependencies": []}
+        nodes[project_id] = node
+        for dependency in release.get("dependencies", []):
+            if dependency.get("dependency_type") != "required":
+                continue
+            dependency_id = dependency.get("project_id")
+            if not dependency_id:
+                raise ValueError(f"{node['title']} 有一个无法自动获取的必需前置")
+            dep_release_id = dependency.get("version_id")
+            if not dep_release_id:
+                compatible = project_releases(dependency_id, "mod", instance)
+                if not compatible:
+                    raise ValueError(f"找不到前置模组 { _project_title(dependency_id) } 的兼容版本")
+                dep_release_id = compatible[0]["id"]
+            visit(dependency_id, dep_release_id, True)
+            node["dependencies"].append(dependency_id)
+        visiting.discard(release_id)
+
+    for root in roots:
+        visit(root["project_id"], root["release_id"])
+    return {"target": {"id": instance["id"], "version": instance["game_version"],
+                       "loader": instance["loader"], "name": instance.get("name", "")},
+            "projects": list(nodes.values()),
+            "roots": [root["project_id"] for root in roots]}
+
+
+def install_mod_cart(config: dict, instance_id: str, roots: list[dict],
+                     progress=lambda text: None) -> list[str]:
+    installed: list[str] = []
+    seen: set[str] = set()
+    for root in roots:
+        installed.extend(install_project_release(config, root["project_id"],
+                                                 root["release_id"], "mod",
+                                                 instance_id, progress, seen))
+    return installed
 
 
 @lru_cache(maxsize=256)
@@ -132,6 +215,45 @@ def project_releases(project_id: str, kind: str, instance: dict | None) -> list[
                                 "title": titles.get(dep.get("project_id"), "所需前置")}
                                for dep in item.get("dependencies", [])]}
             for item in versions]
+
+
+@lru_cache(maxsize=512)
+def _mod_file_icon(filename: str, game_version: str, loader: str) -> tuple[str, str]:
+    stem = Path(filename).name.removesuffix(".disabled").removesuffix(".jar")
+    stem = re.split(r"-(?:mc|minecraft|fabric|forge|neoforge|quilt|[0-9]+(?:\.[0-9]+){1,3})(?:-|$)",
+                    stem, maxsplit=1, flags=re.I)[0]
+    query = re.sub(r"[-_]+", " ", stem).strip()
+    if not query:
+        return "", ""
+    facets = [["project_type:mod"], [f"versions:{game_version}"]]
+    if loader and loader != "vanilla":
+        facets.append([f"categories:{loader}"])
+    try:
+        data = _get("/search", {"query": query, "facets": json.dumps(facets),
+                                "limit": 5, "index": "relevance"})
+        hits = data.get("hits", [])
+        normalized = re.sub(r"[^a-z0-9]", "", stem.casefold())
+        hit = next((x for x in hits if re.sub(r"[^a-z0-9]", "", str(x.get("slug", "")).casefold()) == normalized),
+                   hits[0] if hits else None)
+        if not hit:
+            return "", ""
+        return str(hit.get("title", "")), _icon_data(str(hit.get("icon_url", "")))
+    except requests.RequestException:
+        return "", ""
+
+
+def mod_file_icons(files: list[dict], instance: dict) -> list[dict]:
+    # The frontend sends filenames for legacy jars (whose icon metadata was
+    # not saved), while newer callers may send {name: ...} records. Accept
+    # both shapes so opening the version settings card cannot fail on a str.
+    names = [str(file.get("name", "")) if isinstance(file, dict) else str(file)
+             for file in files[:60]]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        details = list(pool.map(lambda name: _mod_file_icon(name,
+                          str(instance.get("game_version", "")),
+                          str(instance.get("loader", ""))), names))
+    return [{"name": name, "title": title, "icon_data": icon}
+            for name, (title, icon) in zip(names, details)]
 
 
 def _safe_relative(value: str) -> Path:
@@ -261,12 +383,13 @@ def import_pack(config: dict, archive_path: str, folder: str,
 
 
 def install_project_release(config: dict, project_id: str, release_id: str,
-                            kind: str, instance_id: str, progress=lambda text: None) -> list[str]:
+                            kind: str, instance_id: str, progress=lambda text: None,
+                            seen: set[str] | None = None) -> list[str]:
     if kind not in FOLDER_MAP:
         raise ValueError("请选择模组、光影或资源包")
     item = core.instance(config, instance_id)
     installed: list[str] = []
-    seen: set[str] = set()
+    seen = seen if seen is not None else set()
 
     def install(release: dict, current_kind: str):
         identifier = release["id"]
@@ -300,6 +423,19 @@ def install_project_release(config: dict, project_id: str, release_id: str,
         destination = core.instance_folder(config, instance_id, FOLDER_MAP[current_kind]) / filename
         progress(f"正在安装 {filename}…")
         core._download_verified(selected, destination)
+        if current_kind == "mod":
+            try:
+                project = _get(f"/project/{quote(release['project_id'])}")
+                metadata_path = destination.parent / ".gcl-mod-metadata.json"
+                try:
+                    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError, TypeError):
+                    metadata = {}
+                metadata[filename] = {"title": project.get("title", ""),
+                                      "icon_data": _icon_data(project.get("icon_url", ""))}
+                metadata_path.write_text(json.dumps(metadata, ensure_ascii=False), encoding="utf-8")
+            except (OSError, requests.RequestException, ValueError):
+                pass
         installed.append(filename)
 
     release = _get(f"/version/{quote(release_id)}")
