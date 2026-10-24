@@ -7,5 +7,6 @@
 - [PyInstaller](https://pyinstaller.org/): GPLv2 带特殊例外。用于打包程序。
 - [skinview3d](https://github.com/bs-community/skinview3d)：MIT。用于 Minecraft 3D 皮肤预览。其打包依赖 Three.js 与 skinview-utils 也为 MIT；许可全文位于 `licenses/`。
 - [Lucide](https://lucide.dev/)：ISC。用于界面图标；许可全文位于 `licenses/`。
+- [frp / frpc 0.59.0](https://github.com/fatedier/frp)：Apache-2.0。GCL 从官方源码构建 `frpc`，作为跨平台联机隧道组件随安装包分发；许可全文位于 `licenses/frp-Apache-2.0.txt`。
 
 本项目不包含 PCL 代码、Minecraft 游戏文件或第三方 Mod 文件。公开分发时应随附实际打包版本对应的许可证全文与组件清单。

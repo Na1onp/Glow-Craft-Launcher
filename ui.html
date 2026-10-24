@@ -43,6 +43,10 @@
 #blocklight-mockup .bl-name { font-size:19px; font-weight:720; color:#123253; border:0; background:transparent; text-align:center; width:146px; padding:4px 0; outline-offset:2px; }
 #blocklight-mockup .bl-mini { width:29px; height:29px; border:0; background:rgba(255,255,255,.72); color:#3b7fc9; border-radius:50%; display:grid; place-items:center; box-shadow:0 3px 8px rgba(52,107,175,.09); }
 #blocklight-mockup .bl-mini i { width:15px; height:15px; }
+#blocklight-mockup .bl-room-actions { width:min(100%,400px); display:flex; justify-content:center; gap:8px; margin-top:10px; }
+#blocklight-mockup .bl-room-actions button { appearance:none; border:1px solid rgba(57,126,201,.2); background:rgba(255,255,255,.66); color:#35658f; border-radius:10px; height:34px; padding:0 13px; font-size:11px; font-weight:650; }
+#blocklight-mockup .bl-room-actions .bl-host-room { background:rgba(41,129,241,.1); border-color:rgba(41,129,241,.28); color:#1767c7; }
+#blocklight-mockup .bl-room-note { min-height:17px; max-width:min(100%,400px); margin-top:5px; text-align:center; color:#6c89a9; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
 #blocklight-mockup .bl-caption { color:#6c89a9; font-size:11px; margin-top:2px; }
 #blocklight-mockup .bl-launch-area { display:flex; align-items:end; justify-content:center; gap:12px; }
 #blocklight-mockup .bl-version-label { font-size:11px; color:#6481a2; font-weight:650; margin:0 0 7px 2px; }
@@ -610,7 +614,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
         <div class="bl-profile">
           <div class="bl-character-slot"><canvas class="bl-skin-canvas" width="165" height="255" role="img" aria-label="会跟随鼠标转动的 3D Minecraft 人物" hidden></canvas><div class="bl-character" role="img" aria-label="人物预览备用图"><div class="shadow"></div><div class="leg left"></div><div class="leg right"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="head"></div><div class="hair"></div><div class="face"></div><div class="nose"></div></div></div>
           <div class="bl-name-row"><input class="bl-name" aria-label="玩家名称" value="DemoPlayer"><button type="button" class="bl-mini cursor-interaction" aria-label="刷新皮肤" data-tooltip="刷新皮肤"><i data-lucide="refresh-cw" aria-hidden="true"></i></button></div>
-          <div class="bl-caption" aria-live="polite">3D 示意 · 正版账号接入后同步皮肤</div><button type="button" class="bl-import-skin cursor-interaction" hidden>导入本地皮肤</button><input class="bl-skin-file" type="file" accept="image/png" aria-label="选择 Minecraft 皮肤 PNG" hidden>
+          <div class="bl-caption" aria-live="polite">正版皮肤与披风跟随 Minecraft 账户</div><button type="button" class="bl-import-skin cursor-interaction" hidden>导入本地皮肤</button><input class="bl-skin-file" type="file" accept="image/png" aria-label="选择 Minecraft 皮肤 PNG" hidden>
         </div>
         <div class="bl-right">
           <div class="bl-right-heading">准备好进入世界了吗？</div>
@@ -625,6 +629,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
             <div class="bl-directory-wrap"><button type="button" class="bl-secondary bl-directory cursor-interaction" aria-expanded="false"><i data-lucide="folder-open" aria-hidden="true"></i><span>游戏目录 · First</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><div class="bl-menu bl-directory-menu" hidden></div></div>
             <button type="button" class="bl-secondary bl-settings cursor-interaction"><i data-lucide="settings-2" aria-hidden="true"></i>版本设置</button>
           </div>
+          <div class="bl-room-actions" aria-label="Minecraft 联机"><button type="button" class="bl-host-room cursor-interaction">创建联机房间</button><button type="button" class="bl-join-room cursor-interaction">加入好友房间</button><button type="button" class="bl-copy-room cursor-interaction" hidden>复制地址</button><button type="button" class="bl-stop-room cursor-interaction" hidden>关闭房间</button></div>
+          <div class="bl-room-note" aria-live="polite">房主先在游戏内选择“对局域网开放”；房间地址请只分享给好友，当前不设 GCL 房间密码。</div>
         </div>
         <div class="bl-footer"><span>Glow Craft Launcher</span><span>macOS</span></div>
       </main>
@@ -728,7 +734,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
             <div class="gs-row"><div class="gs-row-main gs-account"><div class="gs-avatar">M</div><div><div class="gs-row-title">Microsoft 正版账户</div><div class="gs-row-desc">尚未连接</div></div></div><button type="button" class="gs-soft cursor-interaction" data-preview-action="前往首页登录 Microsoft">前往首页登录</button></div>
             <div class="gs-row"><div class="gs-row-main gs-account"><div class="gs-avatar">D</div><div><div class="gs-row-title">离线档案</div><div class="gs-row-desc">DemoPlayer · 本地皮肤预览</div></div></div><button type="button" class="gs-soft cursor-interaction" data-preview-action="管理离线档案">管理</button></div>
             <div class="gs-row"><div class="gs-row-main"><div class="gs-row-title">本地皮肤图片</div><div class="gs-row-desc">离线档案可导入 PNG，首页会显示人物外观。</div></div><button type="button" class="gs-soft cursor-interaction" data-preview-action="导入皮肤图片">导入图片</button></div>
-            <div class="gs-note"><i data-lucide="shield-check" aria-hidden="true"></i><span>正版皮肤与披风跟随 Minecraft 账户；本地皮肤不会改变服务器上的正版外观。</span></div>
+            <div class="gs-note"><i data-lucide="shield-check" aria-hidden="true"></i><span>导入的 PNG 用于启动器人物预览。离线账号的原版游戏不会加载自定义皮肤；游戏内显示需要皮肤加载器及其皮肤源，其他玩家也需能访问相同皮肤源。</span></div>
           </section>
           <section class="gs-panel" data-panel="appearance" aria-label="界面设置" hidden>
             <div class="gs-panel-head"><h2>界面</h2><p>保持蓝白主题，调整动效与显示大小。</p></div>

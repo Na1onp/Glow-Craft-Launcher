@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import traceback
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -21,11 +22,12 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QApplication, QFileDialog, QInputDialog, QMainWindow
+from PySide6.QtWidgets import QApplication, QFileDialog, QInputDialog, QLineEdit, QMainWindow, QMessageBox
 
 import full_features as features
 import launcher_core as core
 import launcher_updater as updater
+from sakura_frp import SakuraFrp
 
 
 class Job(QThread):
@@ -60,6 +62,9 @@ class Bridge(QObject):
         self.staged_update = None
         self._skin_cache_key = None
         self._skin_cache_value = ""
+        self.room_process = None
+        self.room_config_path = None
+        self.room_info = None
         self.java_status = "未发现系统 Java；安装游戏时会自动准备"
         java_executable = shutil.which("java")
         if java_executable:
@@ -92,12 +97,103 @@ class Bridge(QObject):
                     "account_mode", "memory_auto", "memory_gb", "java_path",
                     "motion", "motion_speed", "scale", "window_mode", "retry_downloads", "update_feed_url")},
                 "data_dir": str(core.app_dir()),
+                "platform": "macOS" if sys.platform == "darwin" else "Windows" if os.name == "nt" else sys.platform,
                 "account": {"name": self.account.get("name"), "kind": self.account.get("kind")}
                            if self.account else meta,
                 "java": self.java_status,
                 "app_version": updater.APP_VERSION,
                 "update_feed_configured": bool(updater.feed_url(self.config, Path(__file__).parent)),
+                "sakura_connected": bool(self._sakura_token()),
+                "room": self.room_info,
                 "skin": self.skin_data(), "cape": self.cape_data()}
+
+    @staticmethod
+    def _sakura_token():
+        try:
+            import keyring
+            return keyring.get_password("glow-craft-launcher-sakurafrp", "access-token") or ""
+        except Exception:
+            logging.exception("SakuraFrp token storage is unavailable")
+            return ""
+
+    def _bind_sakura(self):
+        QDesktopServices.openUrl(QUrl("https://www.natfrp.com/"))
+        token, ok = QInputDialog.getText(
+            self.window, "绑定 SakuraFrp", "请在 SakuraFrp 用户信息页复制访问密钥并粘贴到这里。\nGCL 会将密钥保存在系统钥匙串中。",
+            QLineEdit.EchoMode.Password)
+        if not ok:
+            return self.state()
+        token = token.strip()
+        client = SakuraFrp(token)
+        client.request("/user/info")
+        import keyring
+        keyring.set_password("glow-craft-launcher-sakurafrp", "access-token", token)
+        return self.state()
+
+    @staticmethod
+    def _frpc_path():
+        root = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
+        executable = "frpc.exe" if os.name == "nt" else "frpc"
+        path = root / executable
+        if not path.is_file():
+            raise FileNotFoundError("GCL 内置的联机组件 frpc 不在安装包中，请更新到包含联机功能的版本")
+        return path
+
+    def _host_room(self, port, progress):
+        token = self._sakura_token()
+        if not token:
+            raise ValueError("请先在首页点击“创建联机房间”绑定 SakuraFrp 访问密钥")
+        if self.room_process and self.room_process.poll() is None:
+            raise ValueError("联机房间已经开启；请先关闭当前房间")
+        frpc_path = self._frpc_path()
+        client = SakuraFrp(token)
+        room = client.create_minecraft_room(int(port), progress)
+        config_path = core.app_dir() / "sakurafrp-room.toml"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(room["config"], encoding="utf-8")
+        try:
+            if os.name != "nt":
+                config_path.chmod(0o600)
+            log_path = core.app_dir() / "sakurafrp-room.log"
+            log_file = log_path.open("ab")
+            self.room_process = subprocess.Popen(
+                [str(frpc_path), "-c", str(config_path)], cwd=str(core.app_dir()),
+                stdin=subprocess.DEVNULL, stdout=log_file, stderr=subprocess.STDOUT,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            time.sleep(1.5)
+            if self.room_process.poll() is not None:
+                log_file.close()
+                detail = log_path.read_text(encoding="utf-8", errors="replace")[-1800:]
+                raise RuntimeError("穿透客户端未能启动：" + (detail.strip() or "请查看联机日志"))
+        except Exception:
+            config_path.unlink(missing_ok=True)
+            try:
+                client.delete_tunnel(room["id"])
+            except Exception:
+                logging.exception("Could not remove failed SakuraFrp tunnel")
+            raise
+        self.room_config_path = config_path
+        self.room_info = {"endpoint": room["endpoint"], "node": room["node"], "id": room["id"]}
+        result = {"endpoint": room["endpoint"], "node": room["node"], "warning": room["warning"]}
+        return result
+
+    def _stop_room(self):
+        process, self.room_process = self.room_process, None
+        room, self.room_info = self.room_info, None
+        if process and process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+        if self.room_config_path:
+            self.room_config_path.unlink(missing_ok=True)
+            self.room_config_path = None
+        if room:
+            token = self._sakura_token()
+            if token:
+                SakuraFrp(token).delete_tunnel(room["id"])
+        return self.state()
 
     def cape_data(self):
         if self.config.get("account_mode") != "microsoft":
@@ -236,6 +332,28 @@ class Bridge(QObject):
             return events
         if op == "save":
             return self._save(args)
+        if op == "bind_sakura":
+            return self._bind_sakura()
+        if op == "ask_lan_port":
+            port, ok = QInputDialog.getInt(
+                self.window, "开放局域网端口", "先在 Minecraft 中选择“对局域网开放”，再输入聊天栏显示的端口：",
+                25565, 1, 65535)
+            return {"cancelled": not ok, "port": port}
+        if op == "host_room":
+            if not self._sakura_token():
+                QMessageBox.information(self.window, "绑定 SakuraFrp", "首次创建房间需要绑定自己的 SakuraFrp 访问密钥。接下来会打开 SakuraFrp 官网。")
+                self._bind_sakura()
+            if not self._sakura_token():
+                raise ValueError("尚未绑定 SakuraFrp 账号")
+            return self.start("host_room", lambda progress: self._host_room(args.get("port"), progress))
+        if op == "stop_room":
+            return self.start("stop_room", lambda _progress: self._stop_room())
+        if op == "ask_room_address":
+            address, ok = QInputDialog.getText(self.window, "加入好友房间", "输入房主分享的地址（域名或 IP:端口）：")
+            return {"cancelled": not ok, "address": address.strip()}
+        if op == "copy_text":
+            QApplication.clipboard().setText(str(args.get("text") or ""))
+            return True
         if op == "new_folder":
             value, ok = QInputDialog.getText(self.window, "新建游戏目录", "目录名称")
             if not ok:
@@ -376,7 +494,8 @@ class Bridge(QObject):
                 else:
                     account = core.offline_account(name)
                 progress("正在启动游戏…")
-                return core.launch_instance(self.config, args["instance"], account)
+                return core.launch_instance(self.config, args["instance"], account,
+                                            str(args.get("server_address") or ""))
             return self.start("launch", action)
         if op == "open_logs":
             path = core.app_dir() / "launcher.log"
@@ -395,6 +514,10 @@ class Bridge(QObject):
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
             return str(path)
         if op == "close":
+            try:
+                self._stop_room()
+            except Exception:
+                logging.exception("Could not cleanly stop room tunnel")
             self.window.close()
             return True
         raise ValueError("未知操作")

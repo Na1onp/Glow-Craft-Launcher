@@ -274,7 +274,7 @@ def backup_saves(config: dict, identifier: str) -> str:
     return str(destination)
 
 
-def launch_instance(config: dict, identifier: str, account: dict) -> int:
+def launch_instance(config: dict, identifier: str, account: dict, server_address: str = "") -> int:
     item = instance(config, identifier)
     version_id = item["version_id"]
     if version_id not in installed_versions(config):
@@ -299,6 +299,12 @@ def launch_instance(config: dict, identifier: str, account: dict) -> int:
             raise FileNotFoundError("手动指定的 Java 文件不存在")
         options["executablePath"] = java_path
     command = mll.command.get_minecraft_command(version_id, base_dir(config), options)
+    if server_address:
+        # Minecraft's standard client flags open directly on a multiplayer server.
+        host, separator, port_text = server_address.strip().rpartition(":")
+        if not separator or not host or not port_text.isdecimal() or not 1 <= int(port_text) <= 65535:
+            raise ValueError("服务器地址格式应为 域名或IP:端口")
+        command.extend(["--server", host.strip("[]"), "--port", str(int(port_text))])
     return subprocess.Popen(command, cwd=game_dir(config, identifier)).pid
 
 

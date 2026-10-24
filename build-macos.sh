@@ -8,6 +8,12 @@ fi
 if ! "$build_python" -c "import PyInstaller, PySide6, minecraft_launcher_lib, keyring; from PySide6.QtWebEngineWidgets import QWebEngineView" 2>/dev/null; then
   "$build_python" -m pip install -r requirements.txt pyinstaller
 fi
+if ! command -v go >/dev/null 2>&1; then
+  echo "需要 Go 来构建 GCL 内置的 Minecraft 联机组件 (frpc)" >&2
+  exit 1
+fi
+mkdir -p .gcl-build
+go build -trimpath -ldflags="-s -w" -o .gcl-build/frpc github.com/fatedier/frp/cmd/frpc@v0.59.0
 ssl_policy=$("$build_python" -c 'import ssl; from pathlib import Path; p=Path(ssl.__file__); b=p.with_name("codex-rejected-cas.pem"); print(b if b.is_file() and "codex-rejected-cas.pem" in p.read_text() else "")')
 if [ -n "$ssl_policy" ]; then
   set -- --add-data "$ssl_policy:."
@@ -20,6 +26,7 @@ fi
   --add-data "skinview3d.min.js:." --add-data "lucide.min.js:." \
   --add-data "THIRD_PARTY.md:." --add-data "update-channel.json:." \
   --add-data "update-install.sh:." --add-data "licenses:licenses" \
+  --add-binary ".gcl-build/frpc:." \
   --collect-all minecraft_launcher_lib --collect-all keyring "$@" app_web.py
 app="dist/Glow Craft Launcher.app"
 app_version=$("$build_python" -c 'import launcher_updater; print(launcher_updater.APP_VERSION)')
