@@ -1,0 +1,6 @@
+PySide6-Essentials>=6.8,<7
+PySide6-Addons>=6.8,<7
+PySide6-WebEngine>=6.8,<7
+minecraft-launcher-lib>=8,<9
+keyring>=25,<27
+requests>=2.32,<3
