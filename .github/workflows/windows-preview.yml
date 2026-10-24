@@ -23,10 +23,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Download v0.6.0 source
+      - name: Download v0.6.1 source
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/v0.6.0/Glow-Craft-Launcher-source-v0.6.0.zip" -OutFile source.zip
+          Invoke-WebRequest -Uri "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/v0.6.1/Glow-Craft-Launcher-source-v0.6.1.zip" -OutFile source.zip
           New-Item -ItemType Directory -Force source | Out-Null
           Expand-Archive -Path source.zip -DestinationPath source
 
@@ -46,19 +46,20 @@ jobs:
         shell: pwsh
         run: |
           Set-Location source
-          python -m PyInstaller --noconfirm --windowed --onedir --name "Glow Craft Launcher" --icon icon.ico --add-data "ui.html;." --add-data "ui.js;." --add-data "skinview3d.min.js;." --add-data "lucide.min.js;." --add-data "THIRD_PARTY.md;." --add-data "icon.png;." --add-data "update-channel.json;." --add-data "licenses;licenses" --collect-all PySide6 --collect-all minecraft_launcher_lib --collect-all keyring app_web.py
+          python -m PyInstaller --noconfirm --windowed --onedir --name "Glow Craft Launcher" --icon icon.ico --add-data "ui.html;." --add-data "ui.js;." --add-data "skinview3d.min.js;." --add-data "lucide.min.js;." --add-data "THIRD_PARTY.md;." --add-data "icon.png;." --add-data "update-channel.json;." --add-data "update-install.ps1;." --add-data "licenses;licenses" --collect-all PySide6 --collect-all minecraft_launcher_lib --collect-all keyring app_web.py
 
       - name: Create shareable Windows archive
         shell: pwsh
         run: |
           Set-Location source
           $version = python -c "import launcher_updater; print(launcher_updater.APP_VERSION)"
+          Set-Content -Path "dist/Glow Craft Launcher/version.txt" -Value $version -Encoding ascii
           @(
-            "Glow Craft Launcher Windows preview v$version",
+            "Glow Craft Launcher Windows v$version",
             "",
             "Unzip the entire folder, then run Glow Craft Launcher.exe.",
             "Keep the _internal folder beside the executable.",
-            "This preview is unsigned and may show a Windows publisher warning.",
+            "This package is unsigned and may show a Windows publisher warning.",
             "Microsoft account login requires the launcher's approved Microsoft Client ID."
           ) | Set-Content -Encoding UTF8 "dist/Glow Craft Launcher/README-Windows.txt"
           Compress-Archive -Path "dist/Glow Craft Launcher/*" -DestinationPath "Glow-Craft-Launcher-Windows-x64-v$version.zip"
@@ -67,7 +68,7 @@ jobs:
       - name: Upload Windows preview artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Glow-Craft-Launcher-Windows-x64-preview
+          name: Glow-Craft-Launcher-Windows-x64-v0.6.1
           path: source/Glow-Craft-Launcher-Windows-x64-v*.zip
           if-no-files-found: error
           retention-days: 30
