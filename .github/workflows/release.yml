@@ -2,24 +2,33 @@ name: Build and publish GCL release
 
 on:
   release:
-    types: [published, edited]
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to package
+        required: true
+        default: v0.7.1
+      source_ref:
+        description: Source commit or branch
+        required: true
+        default: main
 
 permissions:
   contents: write
 
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+  SOURCE_REF: ${{ inputs.source_ref || github.event.release.tag_name }}
+
 jobs:
   build-windows:
-    if: github.event.action == 'published' || github.event.changes.body != null || github.event.changes.name != null
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
-      - name: Download release source
-        shell: pwsh
-        run: |
-          $tag = "${{ github.event.release.tag_name }}"
-          Invoke-WebRequest -Uri "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/$tag/Glow-Craft-Launcher-source-$tag.zip" -OutFile source.zip
-          New-Item -ItemType Directory -Force source | Out-Null
-          Expand-Archive -Path source.zip -DestinationPath source
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
 
       - uses: actions/setup-python@v5
         with:
@@ -32,19 +41,23 @@ jobs:
       - name: Build Windows package
         shell: pwsh
         run: |
-          Set-Location source
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pyinstaller pillow
           New-Item -ItemType Directory -Force .gcl-build | Out-Null
-          $env:GOBIN = (Join-Path (Get-Location) ".gcl-build")
-          go install github.com/fatedier/frp/cmd/frpc@v0.59.0
+          git clone --branch v0.59.0 --depth 1 https://github.com/fatedier/frp.git .gcl-build/frp
+          if ($LASTEXITCODE -ne 0) { throw "frp source checkout failed" }
+          Push-Location .gcl-build/frp
+          go build -trimpath -ldflags="-s -w" -o ../frpc.exe ./cmd/frpc
+          if ($LASTEXITCODE -ne 0) { throw "frpc build failed" }
+          Pop-Location
           python -c "from PIL import Image; Image.open('icon.png').convert('RGBA').save('icon.ico', sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)])"
           python -m PyInstaller --noconfirm --windowed --onedir --name "Glow Craft Launcher" --icon icon.ico --add-data "ui.html;." --add-data "ui.js;." --add-data "skinview3d.min.js;." --add-data "lucide.min.js;." --add-data "THIRD_PARTY.md;." --add-data "icon.png;." --add-data "update-channel.json;." --add-data "update-install.ps1;." --add-data "licenses;licenses" --add-binary ".gcl-build\frpc.exe;." --collect-all PySide6 --collect-all minecraft_launcher_lib --collect-all keyring app_web.py
+          if ($LASTEXITCODE -ne 0) { throw "Windows packaging failed" }
           $version = python -c "import launcher_updater; print(launcher_updater.APP_VERSION)"
           Set-Content -Path "dist/Glow Craft Launcher/version.txt" -Value $version -Encoding ascii
           Compress-Archive -Path "dist/Glow Craft Launcher/*" -DestinationPath "Glow-Craft-Launcher-Windows-x64-v$version.zip"
-          New-Item -ItemType Directory -Force ../release-assets | Out-Null
-          Move-Item "Glow-Craft-Launcher-Windows-x64-v$version.zip" ../release-assets/
+          New-Item -ItemType Directory -Force release-assets | Out-Null
+          Move-Item "Glow-Craft-Launcher-Windows-x64-v$version.zip" release-assets/
 
       - uses: actions/upload-artifact@v4
         with:
@@ -52,16 +65,12 @@ jobs:
           path: release-assets/*
 
   build-macos:
-    if: github.event.action == 'published' || github.event.changes.body != null || github.event.changes.name != null
     runs-on: macos-latest
     timeout-minutes: 60
     steps:
-      - name: Download release source
-        run: |
-          TAG="${{ github.event.release.tag_name }}"
-          curl -fL "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/$TAG/Glow-Craft-Launcher-source-$TAG.zip" -o source.zip
-          mkdir source
-          unzip -q source.zip -d source
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
 
       - uses: actions/setup-python@v5
         with:
@@ -73,21 +82,13 @@ jobs:
 
       - name: Build macOS package
         run: |
-          cd source
           python3 -m pip install --user -r requirements.txt pyinstaller
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("build-macos.sh")
-          s = p.read_text()
-          s = s.replace('go build -trimpath -ldflags="-s -w" -o .gcl-build/frpc github.com/fatedier/frp/cmd/frpc@v0.59.0', 'GOBIN="$(pwd)/.gcl-build" go install github.com/fatedier/frp/cmd/frpc@v0.59.0')
-          p.write_text(s)
-          PY
           GCL_PYTHON="$(python3 -c 'import sys; print(sys.executable)')" sh build-macos.sh
           VERSION="$(python3 -c 'import launcher_updater; print(launcher_updater.APP_VERSION)')"
           ARCH="$(uname -m)"
           if [ "$ARCH" = "arm64" ]; then PLATFORM=arm64; else PLATFORM=x86_64; fi
-          mkdir -p ../release-assets
-          ditto -c -k --sequesterRsrc --keepParent "dist/Glow Craft Launcher.app" "../release-assets/Glow-Craft-Launcher-macOS-$PLATFORM-v$VERSION.zip"
+          mkdir -p release-assets
+          ditto -c -k --sequesterRsrc --keepParent "dist/Glow Craft Launcher.app" "release-assets/Glow-Craft-Launcher-macOS-$PLATFORM-v$VERSION.zip"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -98,6 +99,9 @@ jobs:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
       - uses: actions/download-artifact@v4
         with:
           path: release-assets
@@ -107,8 +111,8 @@ jobs:
       - name: Create shared update manifest
         env:
           GH_REPOSITORY: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
+          git archive --format=zip -o "release-assets/Glow-Craft-Launcher-source-$RELEASE_TAG.zip" HEAD
           python - <<'PY'
           import hashlib, json, os
           from pathlib import Path
@@ -135,10 +139,11 @@ jobs:
       - name: Attach both platform packages and update manifest
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             release-assets/Glow-Craft-Launcher-macOS-*-v*.zip
             release-assets/Glow-Craft-Launcher-Windows-x64-v*.zip
             release-assets/update.json
+            release-assets/Glow-Craft-Launcher-source-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
