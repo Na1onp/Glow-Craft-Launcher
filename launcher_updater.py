@@ -18,7 +18,7 @@ import platform
 from pathlib import Path
 from urllib.parse import urlparse
 
-APP_VERSION = "0.7.0"
+APP_VERSION = "0.7.1"
 BUNDLE_ID = "cn.glowcraft.launcher"
 APP_NAME = "Glow Craft Launcher.app"
 MAX_ARCHIVE = 900 * 1024 * 1024
