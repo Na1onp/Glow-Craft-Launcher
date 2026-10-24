@@ -54,14 +54,20 @@ jobs:
           mkdir source
           unzip -q source.zip -d source
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Build macOS package
         run: |
           cd source
           python3 -m pip install --user -r requirements.txt pyinstaller
           GCL_PYTHON="$(python3 -c 'import sys; print(sys.executable)')" sh build-macos.sh
           VERSION="$(python3 -c 'import launcher_updater; print(launcher_updater.APP_VERSION)')"
+          ARCH="$(uname -m)"
+          if [ "$ARCH" = "arm64" ]; then PLATFORM=arm64; else PLATFORM=x86_64; fi
           mkdir -p ../release-assets
-          ditto -c -k --sequesterRsrc --keepParent "dist/Glow Craft Launcher.app" "../release-assets/Glow-Craft-Launcher-macOS-v$VERSION.zip"
+          ditto -c -k --sequesterRsrc --keepParent "dist/Glow Craft Launcher.app" "../release-assets/Glow-Craft-Launcher-macOS-$PLATFORM-v$VERSION.zip"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -91,9 +97,11 @@ jobs:
           repo = os.environ["GH_REPOSITORY"]
           root = Path("release-assets")
           files = {
-              "macos-arm64": next(root.glob("Glow-Craft-Launcher-macOS-v*.zip")),
               "windows-x86_64": next(root.glob("Glow-Craft-Launcher-Windows-x64-v*.zip")),
           }
+          mac_package = next(root.glob("Glow-Craft-Launcher-macOS-*-v*.zip"))
+          mac_platform = "macos-arm64" if "-arm64-" in mac_package.name else "macos-x86_64"
+          files[mac_platform] = mac_package
           manifest = {"schema": 1, "version": version, "notes": f"Glow Craft Launcher {version}", "platforms": {}}
           for platform, path in files.items():
               manifest["platforms"][platform] = {
@@ -109,7 +117,7 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: |
-            release-assets/Glow-Craft-Launcher-macOS-v*.zip
+            release-assets/Glow-Craft-Launcher-macOS-*-v*.zip
             release-assets/Glow-Craft-Launcher-Windows-x64-v*.zip
             release-assets/update.json
         env:
