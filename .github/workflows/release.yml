@@ -2,13 +2,14 @@ name: Build and publish GCL release
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
 
 permissions:
   contents: write
 
 jobs:
   build-windows:
+    if: github.event.action == 'published' || github.event.changes.body != null || github.event.changes.name != null
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -44,6 +45,7 @@ jobs:
           path: release-assets/*
 
   build-macos:
+    if: github.event.action == 'published' || github.event.changes.body != null || github.event.changes.name != null
     runs-on: macos-latest
     timeout-minutes: 60
     steps:
