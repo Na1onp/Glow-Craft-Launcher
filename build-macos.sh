@@ -13,7 +13,7 @@ if ! command -v go >/dev/null 2>&1; then
   exit 1
 fi
 mkdir -p .gcl-build
-go build -trimpath -ldflags="-s -w" -o .gcl-build/frpc github.com/fatedier/frp/cmd/frpc@v0.59.0
+GOBIN="$(pwd)/.gcl-build" go install github.com/fatedier/frp/cmd/frpc@v0.59.0
 ssl_policy=$("$build_python" -c 'import ssl; from pathlib import Path; p=Path(ssl.__file__); b=p.with_name("codex-rejected-cas.pem"); print(b if b.is_file() and "codex-rejected-cas.pem" in p.read_text() else "")')
 if [ -n "$ssl_policy" ]; then
   set -- --add-data "$ssl_policy:."
