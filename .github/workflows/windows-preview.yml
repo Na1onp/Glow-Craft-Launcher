@@ -1,74 +1,109 @@
-name: Windows preview build
+name: Build and publish v0.6.1 for Windows and macOS
 
 on:
   push:
-    branches:
-      - windows-preview
+    branches: [windows-preview]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
-      - name: Check out workflow
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: Download v0.6.1 source
+      - name: Download release source
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/v0.6.1/Glow-Craft-Launcher-source-v0.6.1.zip" -OutFile source.zip
           New-Item -ItemType Directory -Force source | Out-Null
           Expand-Archive -Path source.zip -DestinationPath source
-
-      - name: Install build dependencies
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build Windows package
         shell: pwsh
         run: |
+          Set-Location source
           python -m pip install --upgrade pip
-          python -m pip install -r source/requirements.txt pyinstaller pillow
-
-      - name: Prepare Windows icon
-        shell: pwsh
-        run: |
-          Set-Location source
+          python -m pip install -r requirements.txt pyinstaller pillow
           python -c "from PIL import Image; Image.open('icon.png').convert('RGBA').save('icon.ico', sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)])"
-
-      - name: Build Windows application
-        shell: pwsh
-        run: |
-          Set-Location source
           python -m PyInstaller --noconfirm --windowed --onedir --name "Glow Craft Launcher" --icon icon.ico --add-data "ui.html;." --add-data "ui.js;." --add-data "skinview3d.min.js;." --add-data "lucide.min.js;." --add-data "THIRD_PARTY.md;." --add-data "icon.png;." --add-data "update-channel.json;." --add-data "update-install.ps1;." --add-data "licenses;licenses" --collect-all PySide6 --collect-all minecraft_launcher_lib --collect-all keyring app_web.py
-
-      - name: Create shareable Windows archive
-        shell: pwsh
-        run: |
-          Set-Location source
           $version = python -c "import launcher_updater; print(launcher_updater.APP_VERSION)"
           Set-Content -Path "dist/Glow Craft Launcher/version.txt" -Value $version -Encoding ascii
-          @(
-            "Glow Craft Launcher Windows v$version",
-            "",
-            "Unzip the entire folder, then run Glow Craft Launcher.exe.",
-            "Keep the _internal folder beside the executable.",
-            "This package is unsigned and may show a Windows publisher warning.",
-            "Microsoft account login requires the launcher's approved Microsoft Client ID."
-          ) | Set-Content -Encoding UTF8 "dist/Glow Craft Launcher/README-Windows.txt"
           Compress-Archive -Path "dist/Glow Craft Launcher/*" -DestinationPath "Glow-Craft-Launcher-Windows-x64-v$version.zip"
-          Get-FileHash "Glow-Craft-Launcher-Windows-x64-v$version.zip" -Algorithm SHA256 | Format-List
-
-      - name: Upload Windows preview artifact
-        uses: actions/upload-artifact@v4
+          New-Item -ItemType Directory -Force ../release-assets | Out-Null
+          Move-Item "Glow-Craft-Launcher-Windows-x64-v$version.zip" ../release-assets/
+      - uses: actions/upload-artifact@v4
         with:
-          name: Glow-Craft-Launcher-Windows-x64-v0.6.1
-          path: source/Glow-Craft-Launcher-Windows-x64-v*.zip
-          if-no-files-found: error
-          retention-days: 30
+          name: windows-package
+          path: release-assets/*
+
+  build-macos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Download release source
+        run: |
+          TAG="v0.6.1"
+          curl -fL "https://github.com/Na1onp/Glow-Craft-Launcher/releases/download/$TAG/Glow-Craft-Launcher-source-$TAG.zip" -o source.zip
+          mkdir source
+          unzip -q source.zip -d source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build macOS package
+        run: |
+          cd source
+          python3 -m pip install --user -r requirements.txt pyinstaller
+          GCL_PYTHON="$(python3 -c 'import sys; print(sys.executable)')" sh build-macos.sh
+          VERSION="$(python3 -c 'import launcher_updater; print(launcher_updater.APP_VERSION)')"
+          ARCH="$(uname -m)"
+          if [ "$ARCH" = "arm64" ]; then PLATFORM=arm64; else PLATFORM=x86_64; fi
+          mkdir -p ../release-assets
+          ditto -c -k --sequesterRsrc --keepParent "dist/Glow Craft Launcher.app" "../release-assets/Glow-Craft-Launcher-macOS-$PLATFORM-v$VERSION.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-package
+          path: release-assets/*
+
+  publish-assets:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: "*-package"
+          merge-multiple: true
+      - name: Create shared update manifest
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path("release-assets")
+          tag = "v0.6.1"
+          repo = "Na1onp/Glow-Craft-Launcher"
+          files = {"windows-x86_64": next(root.glob("Glow-Craft-Launcher-Windows-x64-v*.zip"))}
+          mac_package = next(root.glob("Glow-Craft-Launcher-macOS-*-v*.zip"))
+          files["macos-arm64" if "-arm64-" in mac_package.name else "macos-x86_64"] = mac_package
+          manifest = {"schema": 1, "version": "0.6.1", "notes": "Glow Craft Launcher 0.6.1", "platforms": {}}
+          for platform, path in files.items():
+              manifest["platforms"][platform] = {
+                  "url": f"https://github.com/{repo}/releases/download/{tag}/{path.name}",
+                  "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                  "size": path.stat().st_size,
+              }
+          (root / "update.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+          PY
+      - name: Attach both packages and shared update manifest to v0.6.1
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.6.1
+          files: |
+            release-assets/Glow-Craft-Launcher-macOS-*-v*.zip
+            release-assets/Glow-Craft-Launcher-Windows-x64-v*.zip
+            release-assets/update.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
