@@ -36,7 +36,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pyinstaller pillow
           New-Item -ItemType Directory -Force .gcl-build | Out-Null
-          go build -trimpath -ldflags="-s -w" -o .gcl-build/frpc.exe github.com/fatedier/frp/cmd/frpc@v0.59.0
+          $env:GOBIN = (Join-Path (Get-Location) ".gcl-build")
+          go install github.com/fatedier/frp/cmd/frpc@v0.59.0
           python -c "from PIL import Image; Image.open('icon.png').convert('RGBA').save('icon.ico', sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)])"
           python -m PyInstaller --noconfirm --windowed --onedir --name "Glow Craft Launcher" --icon icon.ico --add-data "ui.html;." --add-data "ui.js;." --add-data "skinview3d.min.js;." --add-data "lucide.min.js;." --add-data "THIRD_PARTY.md;." --add-data "icon.png;." --add-data "update-channel.json;." --add-data "update-install.ps1;." --add-data "licenses;licenses" --add-binary ".gcl-build\frpc.exe;." --collect-all PySide6 --collect-all minecraft_launcher_lib --collect-all keyring app_web.py
           $version = python -c "import launcher_updater; print(launcher_updater.APP_VERSION)"
@@ -74,6 +75,13 @@ jobs:
         run: |
           cd source
           python3 -m pip install --user -r requirements.txt pyinstaller
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("build-macos.sh")
+          s = p.read_text()
+          s = s.replace('go build -trimpath -ldflags="-s -w" -o .gcl-build/frpc github.com/fatedier/frp/cmd/frpc@v0.59.0', 'GOBIN="$(pwd)/.gcl-build" go install github.com/fatedier/frp/cmd/frpc@v0.59.0')
+          p.write_text(s)
+          PY
           GCL_PYTHON="$(python3 -c 'import sys; print(sys.executable)')" sh build-macos.sh
           VERSION="$(python3 -c 'import launcher_updater; print(launcher_updater.APP_VERSION)')"
           ARCH="$(uname -m)"
