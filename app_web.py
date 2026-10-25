@@ -1,4 +1,4 @@
-"""Glow Craft Launcher desktop host for the approved three-page UI."""
+"""Glow Craft Launcher desktop host for the four-page UI."""
 from __future__ import annotations
 
 import base64
@@ -15,6 +15,12 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
+
+import truststore
+
+# Use the operating system's trusted certificates in packaged builds. This
+# keeps verification enabled for urllib, Requests and the Minecraft library.
+truststore.inject_into_ssl()
 
 import minecraft_launcher_lib as mll
 from PySide6.QtCore import QObject, QThread, QTimer, QUrl, Signal, Slot
@@ -244,7 +250,9 @@ class Bridge(QObject):
         if result.get("ok") and result.get("job") == "download_update":
             self.staged_update = result.get("data")
         self.emit("job", result)
-        self.emit("state", self.state())
+        if result.get("job") not in {"search", "releases", "versions", "check_update",
+                                     "download_update", "mod_icons", "plan_mod_cart"}:
+            self.emit("state", self.state())
         self.job = None
         if self.pending_jobs:
             name, action = self.pending_jobs.pop(0)
@@ -386,8 +394,13 @@ class Bridge(QObject):
             return self.start("versions", lambda progress: features.version_groups())
         if op == "search":
             item = core.instance(self.config, args["instance"]) if args.get("instance") else None
-            return self.start("search", lambda progress: features.search_projects(
-                args.get("query", ""), args["kind"], item, int(args.get("offset", 0))))
+            request_id = args.get("request_id")
+            def search_action(_progress):
+                result = features.search_projects(args.get("query", ""), args["kind"],
+                                                  item, int(args.get("offset", 0)))
+                result["request_id"] = request_id
+                return result
+            return self.start("search", search_action)
         if op == "releases":
             item = core.instance(self.config, args["instance"]) if args.get("instance") else None
             return self.start("releases", lambda progress: features.project_releases(
