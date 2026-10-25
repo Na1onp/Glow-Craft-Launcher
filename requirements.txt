@@ -4,3 +4,4 @@ PySide6-WebEngine>=6.8,<7
 minecraft-launcher-lib>=8,<9
 keyring>=25,<27
 requests>=2.32,<3
+truststore>=0.10,<1
