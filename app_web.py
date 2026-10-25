@@ -31,7 +31,7 @@ from sakura_frp import SakuraFrp
 
 
 class Job(QThread):
-    message = Signal(str)
+    message = Signal(object)
     done = Signal(str)
 
     def __init__(self, name, action):
@@ -40,7 +40,7 @@ class Job(QThread):
 
     def run(self):
         try:
-            value = self.action(lambda msg: self.message.emit(str(msg)))
+            value = self.action(lambda msg: self.message.emit(msg))
             self.done.emit(json.dumps({"job": self.name, "ok": True, "data": value}, ensure_ascii=False))
         except Exception as exc:
             logging.exception("Job %s failed", self.name)

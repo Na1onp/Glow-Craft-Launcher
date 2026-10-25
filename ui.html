@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 25358)
-Total output lines: 833
-
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Glow Craft Launcher</title>
 <style>
 #blocklight-mockup { width:100%; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#122947; }
@@ -317,7 +314,314 @@ Total output lines: 833
   #blocklight-download .dl-top { height:98px; padding:15px 18px 0; align-items:flex-start; }
   #blocklight-download .dl-brand-sub { display:none; }
   #blocklight-download .dl-nav { top:55px; }
-  #blocklight-download .dl-nav …7358 tokens truncated…ranslateY(0) scale(1);pointer-events:auto}
+  #blocklight-download .dl-nav button { padding:9px 10px; font-size:12px; }
+  #blocklight-download .dl-main { height:calc(100% - 98px); padding:20px 18px; }
+  #blocklight-download .dl-heading { margin-bottom:17px; }
+  #blocklight-download .dl-title { font-size:23px; }
+  #blocklight-download .dl-target-wrap { display:none; }
+  #blocklight-download .dl-categories { gap:5px; margin-bottom:17px; }
+  #blocklight-download .dl-categories button { height:34px; padding:0 9px; }
+  #blocklight-download .dl-content { grid-template-columns:1fr; gap:19px; }
+  #blocklight-download .dl-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #blocklight-download .dl-item { height:52px; padding:0 9px; }
+  #blocklight-download .dl-item-name { font-size:12px; }
+  #blocklight-download .dl-item-desc { display:none; }
+  #blocklight-download .dl-item-badge { font-size:10px; }
+  #blocklight-download .dl-detail { min-height:0; padding:19px; }
+  #blocklight-download .dl-detail h2 { font-size:19px; }
+  #blocklight-download .dl-detail-note { margin-bottom:14px; }
+  #blocklight-download .dl-loaders { margin-bottom:14px; }
+  #blocklight-download .dl-footer { left:18px; right:18px; }
+}
+@media(max-width:420px) {
+  #blocklight-download .dl-stage { height:945px; }
+  #blocklight-download .dl-window { height:920px; }
+  #blocklight-download .dl-categories button { font-size:11px; }
+  #blocklight-download .dl-categories i { display:none; }
+  #blocklight-download .dl-list { grid-template-columns:1fr; }
+  #blocklight-download .dl-item { height:43px; }
+  #blocklight-download .dl-inline-fields { grid-template-columns:1fr; gap:10px; }
+  #blocklight-download .dl-auto { display:none; }
+  #blocklight-download .dl-install-row { justify-content:flex-end; }
+}
+@media(prefers-reduced-motion:reduce) { #blocklight-download .dl-window::before,#blocklight-download .dl-window::after { animation:none; } }
+#glow-settings .gcl-update-source{display:flex;align-items:end;gap:10px;margin:8px 0 14px;color:#4a7197;font-size:12px}
+#glow-settings .gcl-update-source label{flex:1}
+#glow-settings .gcl-update-source input{box-sizing:border-box;width:100%;margin-top:6px;padding:10px 12px;border:1px solid #c2dcf3;border-radius:10px;background:#fff;color:#234b70;font:inherit}
+#glow-settings .gcl-update-actions{margin:8px 0 16px;padding:14px 18px;border:1px solid #b8daf7;border-radius:16px;background:#ffffffb8;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#42698e;font-size:13px}
+#glow-settings .gcl-update-actions[hidden]{display:none}
+#glow-settings .gcl-update-primary{border:0;border-radius:12px;background:#0788ed;color:#fff;padding:10px 17px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#glow-settings .gcl-update-primary:disabled{opacity:.5;cursor:default}
+</style>
+<style>
+#blocklight-download .dl-content { grid-template-columns:minmax(0, 1.04fr) minmax(0, .96fr); gap:21px; }
+#blocklight-download .dl-version-layout { display:grid; grid-template-columns:122px minmax(0,1fr); gap:8px; min-height:390px; margin-top:4px; }
+#blocklight-download .dl-group-list { display:flex; flex-direction:column; gap:8px; }
+#blocklight-download .dl-group-button { appearance:none; width:100%; min-height:48px; border:1px solid rgba(72,133,196,.13); background:rgba(255,255,255,.48); border-radius:10px; color:#54769a; text-align:left; padding:8px 8px; display:flex; align-items:center; justify-content:space-between; gap:3px; }
+#blocklight-download .dl-group-button.active { background:#e7f3ff; border-color:#8fbeee; color:#1d6fc9; box-shadow:0 5px 12px rgba(58,113,177,.08); }
+#blocklight-download .dl-group-button .dl-group-name { font-size:11px; font-weight:700; white-space:nowrap; }
+#blocklight-download .dl-group-button .dl-group-count { display:block; margin-top:3px; font-size:10px; color:#7d9aba; }
+#blocklight-download .dl-group-button i { flex:none; width:12px; height:12px; }
+#blocklight-download .dl-version-panel { min-width:0; border:1px solid rgba(255,255,255,.68); border-radius:12px; background:rgba(255,255,255,.34); padding:9px; }
+#blocklight-download .dl-version-panel-title { font-size:11px; color:#6483a3; font-weight:700; padding:2px 5px 9px; }
+#blocklight-download .dl-version-scroller { height:345px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#b3d3f3 transparent; }
+#blocklight-download .dl-list { gap:5px; }
+#blocklight-download .dl-item { height:39px; padding:0 10px; border-radius:8px; background:rgba(255,255,255,.55); }
+#blocklight-download .dl-item-name { font-size:12px; }
+#blocklight-download .dl-item-desc { display:none; }
+#blocklight-download .dl-item-badge { font-size:10px; padding:4px 6px; }
+#blocklight-download .dl-match-group { font-size:11px; color:#6483a3; font-weight:700; padding:8px 5px 5px; }
+#blocklight-download .dl-match-group:first-child { padding-top:1px; }
+#blocklight-download .dl-section-title { margin-bottom:7px; }
+#blocklight-download .dl-search { height:43px; margin-bottom:13px; }
+#blocklight-download .dl-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); z-index:1; display:grid; place-items:center; width:17px; height:17px; pointer-events:none; color:#357cc5; }
+#blocklight-download .dl-search-icon svg { width:17px; height:17px; }
+#blocklight-download .dl-search input { padding-left:43px; background:#eef7ff; border-color:#8dbff1; box-shadow:0 3px 10px rgba(68,132,204,.08); }
+#blocklight-download .dl-search input::placeholder { color:#6289ae; }
+#blocklight-download .dl-group-list[hidden] { display:none !important; }
+#blocklight-download .dl-version-layout.dl-other { grid-template-columns:minmax(0,1fr) !important; }
+#blocklight-download .dl-version-layout.dl-other .dl-version-panel { width:100%; }
+#blocklight-download .dl-version-layout.dl-other .dl-version-scroller { height:345px; }
+#blocklight-download .dl-version-layout.dl-other .dl-item { height:55px; }
+#blocklight-download .dl-version-layout.dl-other .dl-item-name { font-size:12px; }
+#blocklight-download .dl-version-layout.dl-other .dl-item-desc { display:block; font-size:10px; }
+#blocklight-download .dl-item-body { display:flex; align-items:center; gap:10px; min-width:0; }
+#blocklight-download .dl-item-copy { min-width:0; }
+#blocklight-download .dl-item-media { width:38px; height:38px; flex:none; border-radius:8px; background:#fff; display:grid; place-items:center; overflow:hidden; border:1px solid rgba(68,128,190,.1); }
+#blocklight-download .dl-item-media img { width:100%; height:100%; object-fit:contain; }
+#blocklight-download .dl-item-cn { color:#6f8dad; font-weight:500; }
+#blocklight-download .dl-detail-title-row { display:flex; align-items:center; gap:12px; }
+#blocklight-download .dl-detail-icon { width:42px; height:42px; border-radius:10px; background:#fff; object-fit:contain; border:1px solid #e2edf9; }
+#blocklight-download .dl-detail-icon[hidden] { display:none; }
+#blocklight-download .dl-detail { min-height:390px; }
+#blocklight-download .dl-section-title { margin-bottom:11px; }
+#blocklight-download .dl-content-fields[hidden],#blocklight-download .dl-game-fields[hidden],#blocklight-download .dl-name-field[hidden] { display:none; }
+#blocklight-download .dl-compat-list { display:flex; flex-direction:column; gap:7px; }
+#blocklight-download .dl-compat-list[hidden] { display:none; }
+#blocklight-download .dl-compat-heading { font-size:10px; color:#6588ac; font-weight:700; padding:2px 3px 5px; }
+#blocklight-download .dl-compat-button { appearance:none; width:100%; min-height:42px; border:1px solid rgba(72,133,196,.13); background:rgba(255,255,255,.5); border-radius:9px; color:#54769a; text-align:left; padding:6px 8px; display:flex; flex-direction:column; justify-content:center; gap:2px; }
+#blocklight-download .dl-compat-button.active { background:#e7f3ff; border-color:#8fbeee; color:#1d6fc9; box-shadow:0 5px 12px rgba(58,113,177,.08); }
+#blocklight-download .dl-compat-button strong { font-size:11px; }
+#blocklight-download .dl-compat-button small { font-size:10px; color:#7898b9; }
+#blocklight-download .dl-version-layout.dl-other { grid-template-columns:122px minmax(0,1fr) !important; }
+#blocklight-download .dl-content-fields { margin-bottom:10px; }
+#blocklight-download .dl-content-fields .dl-content-meta { margin:0 0 10px; }
+#blocklight-download .dl-content-fields .dl-content-note { display:none; }
+#blocklight-download .dl-release-row { margin-bottom:11px; }
+#blocklight-download .dl-release-select { appearance:none; width:100%; height:38px; border:1px solid #d7e7f6; background:#fff; color:#2b527b; border-radius:9px; padding:0 11px; font-size:11px; }
+#blocklight-download .dl-dependency { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:54px; padding:9px 11px; margin-bottom:12px; border:1px solid #cae1f8; border-radius:10px; background:#edf6ff; }
+#blocklight-download .dl-dependency.no-dependency { background:#f5faff; border-color:#e2edf8; }
+#blocklight-download .dl-dependency-copy { min-width:0; }
+#blocklight-download .dl-dependency-title { font-size:11px; color:#215c9b; font-weight:700; }
+#blocklight-download .dl-dependency-desc { font-size:10px; color:#6887a6; margin-top:3px; line-height:1.35; }
+#blocklight-download .dl-dependency button { flex:none; appearance:none; border:1px solid #a7cdf3; border-radius:7px; background:#fff; color:#216fc6; padding:6px 8px; font-size:10px; font-weight:700; }
+#blocklight-download .dl-dependency button[hidden] { display:none; }
+#blocklight-download .dl-detail { min-height:430px; padding-top:19px; padding-bottom:18px; }
+#blocklight-download .dl-detail-note { margin-bottom:13px; }
+#blocklight-download .dl-install-row { margin-top:13px; }
+#blocklight-download .dl-inline-fields { margin-bottom:10px; }
+#blocklight-download .dl-version-layout.dl-other .dl-item { height:51px; }
+#blocklight-download .dl-version-layout.dl-other .dl-version-scroller { height:345px; }
+@media(max-width:750px) {
+  #blocklight-download .dl-stage { height:1110px; }
+  #blocklight-download .dl-window { height:1085px; }
+  #blocklight-download .dl-content { grid-template-columns:1fr; gap:16px; }
+  #blocklight-download .dl-version-layout { grid-template-columns:122px minmax(0,1fr); min-height:275px; }
+  #blocklight-download .dl-version-scroller { height:230px; }
+  #blocklight-download .dl-version-layout.dl-other .dl-version-scroller { height:230px; }
+  #blocklight-download .dl-list { display:flex; }
+  #blocklight-download .dl-item { height:36px; }
+  #blocklight-download .dl-detail { min-height:0; }
+  #blocklight-download .dl-version-layout.dl-other .dl-version-scroller { height:230px; }
+}
+@media(max-width:420px) {
+  #blocklight-download .dl-stage { height:1170px; }
+  #blocklight-download .dl-window { height:1145px; }
+  #blocklight-download .dl-version-layout { grid-template-columns:110px minmax(0,1fr); }
+  #blocklight-download .dl-version-layout.dl-other { grid-template-columns:110px minmax(0,1fr) !important; }
+  #blocklight-download .dl-group-button { min-height:48px; padding:6px; }
+  #blocklight-download .dl-item-media { width:33px; height:33px; }
+  #blocklight-download .dl-item-badge { display:none; }
+}
+#glow-settings .gcl-update-source{display:flex;align-items:end;gap:10px;margin:8px 0 14px;color:#4a7197;font-size:12px}
+#glow-settings .gcl-update-source label{flex:1}
+#glow-settings .gcl-update-source input{box-sizing:border-box;width:100%;margin-top:6px;padding:10px 12px;border:1px solid #c2dcf3;border-radius:10px;background:#fff;color:#234b70;font:inherit}
+#glow-settings .gcl-update-actions{margin:8px 0 16px;padding:14px 18px;border:1px solid #b8daf7;border-radius:16px;background:#ffffffb8;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#42698e;font-size:13px}
+#glow-settings .gcl-update-actions[hidden]{display:none}
+#glow-settings .gcl-update-primary{border:0;border-radius:12px;background:#0788ed;color:#fff;padding:10px 17px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#glow-settings .gcl-update-primary:disabled{opacity:.5;cursor:default}
+</style>
+
+<style>
+#glow-settings { width:100%; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#173657; }
+#glow-settings * { box-sizing:border-box; }
+#glow-settings .gs-stage { width:100%; height:750px; }
+#glow-settings .gs-window { position:relative; isolation:isolate; width:100%; height:720px; overflow:hidden; border-radius:16px; background:linear-gradient(128deg,#b8d8ff 0%,#d7e8fc 29%,#f5faff 57%,#fff 79%,#d7eafe 100%); box-shadow:0 19px 55px rgba(34,92,159,.17); --gs-motion:19s; }
+#glow-settings .gs-window::before { content:""; position:absolute; z-index:-1; width:68%; height:115%; left:-10%; top:-26%; background:radial-gradient(circle,rgba(112,176,255,.38),rgba(112,176,255,0) 68%); animation:gs-drift var(--gs-motion) ease-in-out infinite alternate; pointer-events:none; }
+#glow-settings .gs-window::after { content:""; position:absolute; z-index:-1; width:70%; height:100%; right:-14%; bottom:-34%; background:radial-gradient(circle,rgba(151,204,255,.29),rgba(151,204,255,0) 70%); animation:gs-drift2 23s ease-in-out infinite alternate; pointer-events:none; }
+#glow-settings .gs-window.gs-still::before,#glow-settings .gs-window.gs-still::after { animation:none; }
+@keyframes gs-drift { from{transform:translate(-3%,1%) scale(1)} to{transform:translate(11%,5%) scale(1.12)} }
+@keyframes gs-drift2 { from{transform:translate(0,0) scale(1)} to{transform:translate(-11%,-5%) scale(1.12)} }
+#glow-settings .gs-top { height:76px; padding:0 39px; display:flex; align-items:center; justify-content:space-between; position:relative; border-bottom:1px solid rgba(47,106,174,.1); }
+#glow-settings .gs-brand { display:flex; align-items:center; gap:12px; }
+#glow-settings .gs-mark { width:31px; height:31px; display:grid; place-items:center; color:#fff; background:#2b80ed; border-radius:9px; font-weight:800; font-size:21px; line-height:1; box-shadow:0 5px 12px rgba(40,115,218,.22); }
+#glow-settings .gs-brand-name { font-weight:750; letter-spacing:.01em; font-size:17px; color:#102c51; }
+#glow-settings .gs-brand-sub { font-size:11px; color:#527193; margin-top:2px; }
+#glow-settings .gs-nav { position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:5px; }
+#glow-settings .gs-nav button { appearance:none; border:0; background:transparent; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:600; color:#607b9e; }
+#glow-settings .gs-nav button.active { color:#1767c7; background:rgba(255,255,255,.68); box-shadow:0 3px 12px rgba(38,107,188,.08); }
+#glow-settings .gs-close { appearance:none; border:0; width:32px; height:32px; display:grid; place-items:center; border-radius:9px; color:#6181a4; background:rgba(255,255,255,.35); margin-left:auto; }
+#glow-settings .gs-close:hover { background:rgba(236,92,106,.12); color:#b64259; }
+#glow-settings .gs-close svg { width:17px; height:17px; }
+#glow-settings .gs-main { height:calc(100% - 76px); padding:16px 45px 26px; }
+#glow-settings .gs-heading { margin-bottom:16px; }
+#glow-settings .gs-heading h1 { margin:0; font-size:27px; font-weight:750; color:#173c68; }
+#glow-settings .gs-heading p { margin:6px 0 0; font-size:12px; color:#6686a8; }
+#glow-settings .gs-layout { display:grid; grid-template-columns:205px minmax(0,1fr); gap:18px; min-height:500px; }
+#glow-settings .gs-side { display:flex; flex-direction:column; gap:6px; height:500px; padding:13px; border:1px solid rgba(255,255,255,.72); border-radius:16px; background:rgba(255,255,255,.37); }
+#glow-settings .gs-side-title { padding:8px 10px 10px; font-size:11px; font-weight:700; color:#7896b5; }
+#glow-settings .gs-side button { appearance:none; width:100%; min-height:43px; padding:0 12px; display:flex; align-items:center; gap:10px; border:1px solid transparent; border-radius:10px; background:transparent; text-align:left; font-size:12px; font-weight:650; color:#56799e; }
+#glow-settings .gs-side button.active { color:#176acb; background:#e8f4ff; border-color:#a9d1f6; box-shadow:0 4px 12px rgba(47,115,193,.08); }
+#glow-settings .gs-side button:hover:not(.active) { background:rgba(255,255,255,.55); }
+#glow-settings .gs-side svg { width:16px; height:16px; flex:none; }
+#glow-settings .gs-side-foot { margin-top:auto; padding:10px 10px 4px; border-top:1px solid rgba(83,144,205,.12); font-size:11px; line-height:1.45; color:#8aa3bd; }
+#glow-settings .gs-panel { min-width:0; height:500px; padding:23px 27px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#bdd7ef transparent; border:1px solid rgba(255,255,255,.93); border-radius:18px; background:rgba(255,255,255,.65); box-shadow:0 13px 28px rgba(49,101,165,.09); }
+#glow-settings .gs-panel[hidden] { display:none; }
+#glow-settings .gs-panel-head { margin-bottom:13px; }
+#glow-settings .gs-panel-head h2 { margin:0; font-size:21px; font-weight:740; color:#173b65; }
+#glow-settings .gs-panel-head p { margin:5px 0 0; font-size:11px; color:#7993ad; }
+#glow-settings .gs-row { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:71px; padding:11px 0; border-top:1px solid rgba(75,136,197,.12); }
+#glow-settings .gs-row.gs-tall { align-items:flex-start; min-height:101px; }
+#glow-settings .gs-row-main { min-width:0; flex:1; }
+#glow-settings .gs-row-title { font-size:12px; font-weight:700; color:#244f7d; }
+#glow-settings .gs-row-desc { margin-top:5px; font-size:11px; line-height:1.45; color:#7b95ad; }
+#glow-settings .gs-path { display:block; margin-top:7px; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; color:#3270ad; }
+#glow-settings .gs-soft { appearance:none; flex:none; border:1px solid #add0f1; border-radius:9px; background:#f4faff; color:#2472c8; padding:8px 12px; font-size:11px; font-weight:700; }
+#glow-settings .gs-soft:hover { background:#e8f4ff; }
+#glow-settings .gs-chip { display:inline-flex; align-items:center; gap:5px; padding:6px 8px; border-radius:7px; background:#e7f3ff; color:#2877c5; font-size:10px; font-weight:700; white-space:nowrap; }
+#glow-settings .gs-chip svg { width:12px; height:12px; }
+#glow-settings .gs-actions { display:flex; align-items:center; gap:7px; flex:none; }
+#glow-settings .gs-select { appearance:none; border:1px solid #d7e7f6; background:#fff; border-radius:9px; min-width:128px; height:36px; padding:0 10px; color:#2b527b; font-size:11px; }
+#glow-settings .gs-switch { position:relative; display:inline-flex; align-items:center; width:37px; height:22px; flex:none; }
+#glow-settings .gs-switch input { position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; }
+#glow-settings .gs-track { width:37px; height:22px; border-radius:99px; background:#c5d5e5; transition:background .18s; }
+#glow-settings .gs-track::after { content:""; display:block; width:16px; height:16px; margin:3px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.16); transition:transform .18s; }
+#glow-settings .gs-switch input:checked + .gs-track { background:#2b80ed; }
+#glow-settings .gs-switch input:checked + .gs-track::after { transform:translateX(15px); }
+#glow-settings .gs-switch input:focus-visible + .gs-track { outline:2px solid #185dab; outline-offset:2px; }
+#glow-settings .gs-range-block { margin-top:13px; max-width:300px; }
+#glow-settings .gs-range-top { display:flex; justify-content:space-between; font-size:10px; color:#7695b4; }
+#glow-settings .gs-range-top output { color:#2c70b7; font-weight:700; }
+#glow-settings input[type="range"] { width:100%; accent-color:#2b80ed; margin:7px 0 0; }
+#glow-settings input[type="range"]:disabled { opacity:.45; }
+#glow-settings .gs-note { margin-top:12px; display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:9px; background:#edf6ff; color:#6385a7; font-size:11px; line-height:1.5; }
+#glow-settings .gs-note svg { width:14px; height:14px; flex:none; margin-top:1px; color:#377fc7; }
+#glow-settings .gs-account { display:flex; align-items:center; gap:12px; min-width:0; }
+#glow-settings .gs-avatar { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; color:#2a79c6; background:#e5f2ff; font-weight:800; }
+#glow-settings .gs-about { display:flex; align-items:center; gap:15px; padding:10px 0 18px; }
+#glow-settings .gs-about .gs-mark { width:46px; height:46px; font-size:29px; border-radius:12px; }
+#glow-settings .gs-about-title { font-size:18px; font-weight:750; color:#173b65; }
+#glow-settings .gs-about-sub { margin-top:4px; color:#7a94ae; font-size:11px; }
+#glow-settings .gs-footer { position:absolute; left:45px; right:45px; bottom:18px; display:flex; justify-content:space-between; font-size:11px; color:#7895b5; }
+#glow-settings .gs-toast { position:absolute; z-index:9; right:45px; bottom:52px; max-width:350px; border-radius:11px; background:#1a527f; color:#fff; padding:11px 15px; box-shadow:0 9px 22px rgba(28,79,128,.22); font-size:12px; }
+#glow-settings .gs-toast[hidden] { display:none; }
+@media(max-width:750px) {
+  #glow-settings .gs-stage { height:1000px; }
+  #glow-settings .gs-window { height:975px; }
+  #glow-settings .gs-top { height:98px; padding:15px 18px 0; align-items:flex-start; }
+  #glow-settings .gs-brand-sub { display:none; }
+  #glow-settings .gs-nav { top:55px; }
+  #glow-settings .gs-nav button { padding:9px 10px; font-size:12px; }
+  #glow-settings .gs-main { height:calc(100% - 98px); padding:20px 18px; }
+  #glow-settings .gs-heading h1 { font-size:23px; }
+  #glow-settings .gs-layout { grid-template-columns:1fr; gap:12px; }
+  #glow-settings .gs-side { height:auto; display:flex; flex-direction:row; flex-wrap:wrap; padding:8px; gap:4px; }
+  #glow-settings .gs-side-title,#glow-settings .gs-side-foot { display:none; }
+  #glow-settings .gs-side button { width:auto; min-height:34px; padding:0 9px; }
+  #glow-settings .gs-side svg { width:14px; height:14px; }
+  #glow-settings .gs-panel { height:610px; padding:20px; }
+  #glow-settings .gs-footer { left:18px; right:18px; }
+}
+@media(max-width:420px) {
+  #glow-settings .gs-stage { height:1080px; }
+  #glow-settings .gs-window { height:1055px; }
+  #glow-settings .gs-side button { font-size:11px; }
+  #glow-settings .gs-side svg { display:none; }
+  #glow-settings .gs-panel { height:690px; padding:18px; }
+  #glow-settings .gs-actions { flex-wrap:wrap; justify-content:flex-end; }
+  #glow-settings .gs-select { min-width:105px; }
+}
+@media(prefers-reduced-motion:reduce) { #glow-settings .gs-window::before,#glow-settings .gs-window::after { animation:none; } }
+#glow-settings .gcl-update-source{display:flex;align-items:end;gap:10px;margin:8px 0 14px;color:#4a7197;font-size:12px}
+#glow-settings .gcl-update-source label{flex:1}
+#glow-settings .gcl-update-source input{box-sizing:border-box;width:100%;margin-top:6px;padding:10px 12px;border:1px solid #c2dcf3;border-radius:10px;background:#fff;color:#234b70;font:inherit}
+#glow-settings .gcl-update-actions{margin:8px 0 16px;padding:14px 18px;border:1px solid #b8daf7;border-radius:16px;background:#ffffffb8;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#42698e;font-size:13px}
+#glow-settings .gcl-update-actions[hidden]{display:none}
+#glow-settings .gcl-update-primary{border:0;border-radius:12px;background:#0788ed;color:#fff;padding:10px 17px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#glow-settings .gcl-update-primary:disabled{opacity:.5;cursor:default}
+</style>
+
+<style>
+html,body { width:100%;height:100%;margin:0;overflow:hidden;background:#e2f0ff; }
+body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+.gcl-page,.gcl-page>div,.gcl-page section[class$="-stage"],.gcl-page div[class$="-window"] { width:100%;height:100% !important; }
+#blocklight-mockup .bl-stage,#blocklight-mockup .bl-window,
+#blocklight-download .dl-stage,#blocklight-download .dl-window,
+#glow-settings .gs-stage,#glow-settings .gs-window {width:100%;height:100% !important;}
+.gcl-page[hidden], [hidden] { display:none !important; }
+#blocklight-mockup .bl-window,#blocklight-download .dl-window,#glow-settings .gs-window {border-radius:0;box-shadow:none;}
+#blocklight-download .dl-main {height:calc(100% - 76px);}
+#blocklight-download .dl-content {height:calc(100% - 175px);}
+#blocklight-download .dl-results,#blocklight-download .dl-detail {min-height:0;}
+#blocklight-download .dl-version-layout {height:calc(100% - 83px);min-height:0;}
+#blocklight-download .dl-version-layout.dl-pack {grid-template-columns:minmax(0,1fr) !important;}
+#blocklight-download .dl-version-panel {min-height:0;display:flex;flex-direction:column;}
+#blocklight-download .dl-version-scroller,#blocklight-download .dl-version-layout.dl-other .dl-version-scroller {height:auto;min-height:0;flex:1;}
+#glow-settings .gs-main {height:calc(100% - 76px);}
+#glow-settings .gs-layout {height:calc(100% - 105px);min-height:0;}
+#glow-settings .gs-side,#glow-settings .gs-panel {height:100%;}
+#blocklight-mockup .bl-nav,#blocklight-download .dl-nav {position:absolute;left:50%;transform:translateX(-50%);}
+.gcl-status {position:fixed;z-index:999;left:50%;bottom:20px;transform:translateX(-50%);max-width:80%;padding:11px 18px;border-radius:12px;background:#18518d;color:white;font-size:12px;box-shadow:0 8px 20px #215a9940;}
+.gcl-status.error {background:#a33148;}
+.gcl-status[hidden] {display:none;}
+.gcl-inline {font-size:11px;color:#50759d;}
+.gcl-inline input {border:1px solid #b5d5f4;border-radius:8px;padding:7px 9px;font-size:11px;background:#fff;color:#214d7a;}
+.gcl-inline label {display:block;margin:6px 0;}
+.gcl-inline input {width:100%;box-sizing:border-box;}
+.gcl-extra {margin-top:9px;}
+.gcl-extra button {border:1px solid #9fc6ee;background:#eef7ff;color:#2870be;border-radius:8px;padding:7px 10px;margin-right:6px;font-size:11px;font-weight:650;}
+#blocklight-download .dl-detail-title-row .gcl-extra {margin:0 0 0 auto;flex:none;}
+#blocklight-download .dl-detail-title-row h2 {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gcl-busy button {cursor:wait !important;}
+#glow-settings .gcl-update-source{display:flex;align-items:end;gap:10px;margin:8px 0 14px;color:#4a7197;font-size:12px}
+#glow-settings .gcl-update-source label{flex:1}
+#glow-settings .gcl-update-source input{box-sizing:border-box;width:100%;margin-top:6px;padding:10px 12px;border:1px solid #c2dcf3;border-radius:10px;background:#fff;color:#234b70;font:inherit}
+#glow-settings .gcl-update-actions{margin:8px 0 16px;padding:14px 18px;border:1px solid #b8daf7;border-radius:16px;background:#ffffffb8;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#42698e;font-size:13px}
+#glow-settings .gcl-update-actions[hidden]{display:none}
+#glow-settings .gcl-update-primary{border:0;border-radius:12px;background:#0788ed;color:#fff;padding:10px 17px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#glow-settings .gcl-update-primary:disabled{opacity:.5;cursor:default}
+</style><style>
+.gcl-indicator-host{position:relative}.gcl-slide-indicator{position:absolute;left:0;bottom:-3px;height:3px;width:0;border-radius:3px;background:#1688f4;box-shadow:0 0 8px #1688f477;pointer-events:none;transition:transform .32s cubic-bezier(.2,.8,.2,1),width .32s cubic-bezier(.2,.8,.2,1)}
+#blocklight-mockup .bl-nav,#blocklight-download .dl-nav,#glow-settings .gs-nav{position:absolute;left:50%;transform:translateX(-50%);padding-bottom:4px}
+#blocklight-download .dl-categories{position:relative;padding-bottom:5px}
+#blocklight-download .dl-categories .gcl-slide-indicator{bottom:0}
+#blocklight-mockup .bl-instance-card{width:min(800px,100%);height:auto;transition:box-shadow .24s;will-change:height,transform}
+#blocklight-mockup .bl-instance-body{display:flex;flex-direction:column;min-height:0}
+#blocklight-mockup .bl-instance-tabs{position:relative;flex-direction:row;align-items:center;gap:8px;padding:8px 18px;border-right:0;border-bottom:1px solid #e3eefb}
+#blocklight-mockup .bl-instance-tabs button{width:auto;min-width:100px;justify-content:center;text-align:center;padding:10px 13px}
+#blocklight-mockup .bl-instance-tabs .gcl-slide-indicator{bottom:-1px}
+#blocklight-mockup .bl-instance-content{min-height:185px;transition:min-height .25s}
+#blocklight-mockup .bl-mod-row{justify-content:flex-start;min-height:58px}
+#blocklight-mockup .bl-mod-icon{width:36px;height:36px;flex:none;display:grid;place-items:center;overflow:hidden;border:1px solid #e4effa;border-radius:9px;background:#f0f7ff;color:#4d8bcc}
+#blocklight-mockup .bl-mod-icon img{width:100%;height:100%;object-fit:cover}
+#blocklight-mockup .bl-mod-icon svg{width:18px;height:18px}
+#blocklight-mockup .bl-mod-copy{flex:1;min-width:0}
+#blocklight-mockup .bl-mod-copy strong,#blocklight-mockup .bl-mod-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#blocklight-mockup .bl-instance-sheet{opacity:0;transition:opacity .2s ease}
+#blocklight-mockup .bl-instance-sheet.is-open{opacity:1}
+#blocklight-mockup .bl-mark img,#blocklight-download .dl-mark img,#glow-settings .gs-mark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+#blocklight-mockup .bl-menu,#blocklight-download .dl-menu{opacity:0;transform:translateY(-7px) scale(.98);transform-origin:top center;transition:opacity .14s ease,transform .16s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+#blocklight-mockup .bl-menu.gcl-menu-open,#blocklight-download .dl-menu.gcl-menu-open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 #blocklight-download .dl-compat-button.active{border-color:#81b9f1;background:#eaf4ff;color:#176ecb}
 #blocklight-download .dl-install-row{justify-content:flex-end;gap:9px}
 #blocklight-download .dl-auto{margin-right:auto}
@@ -353,6 +657,52 @@ Total output lines: 833
 .bl-footer span:last-child,.dl-footer span:last-child,.gs-footer span:last-child{display:inline-flex;align-items:center;gap:7px}
 .gcl-platform-label{font-size:10px;font-weight:600}
 .gcl-version-label{font-size:10px;font-weight:650;letter-spacing:.02em;color:#547da7}
+#blocklight-mockup .bl-mark,#blocklight-download .dl-mark,#glow-settings .gs-mark,#gcl-connect .cn-mark{box-sizing:border-box;flex:0 0 31px;width:31px!important;height:31px!important;max-width:31px;max-height:31px;overflow:hidden;position:relative;isolation:isolate}
+#glow-settings .gs-about .gs-mark{flex-basis:46px;width:46px!important;height:46px!important;max-width:46px;max-height:46px}
+#blocklight-mockup .bl-mark img,#blocklight-download .dl-mark img,#glow-settings .gs-mark img,#gcl-connect .cn-mark img{position:static!important;display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+#gcl-connect{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#173657}
+#gcl-connect *{box-sizing:border-box}
+#gcl-connect .cn-window{position:relative;height:100%;overflow:hidden;background:linear-gradient(128deg,#b8d8ff,#e7f3ff 47%,#fff 78%,#d7eafe)}
+#gcl-connect .cn-top{height:76px;padding:0 39px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #8cbee633;position:relative}
+#gcl-connect .cn-brand{display:flex;align-items:center;gap:12px}
+#gcl-connect .cn-mark{display:grid;place-items:center;border-radius:9px;background:#2b80ed;color:white;font-weight:800}
+#gcl-connect .cn-brand-name{font-size:17px;font-weight:750;color:#102c51}
+#gcl-connect .cn-brand-sub{font-size:11px;color:#527193}
+#gcl-connect .cn-nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;padding-bottom:4px}
+#gcl-connect .cn-nav button{border:0;background:transparent;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;color:#607b9e}
+#gcl-connect .cn-nav button.active{color:#1767c7;background:#ffffffad}
+#gcl-connect .cn-close{margin-left:auto;border:0;background:#ffffff77;border-radius:9px;width:32px;height:32px;color:#6181a4}
+#gcl-connect .cn-close svg{width:17px;height:17px}
+#gcl-connect .cn-main{height:calc(100% - 76px);overflow:auto;padding:42px clamp(25px,7vw,85px) 58px}
+#gcl-connect .cn-kicker{font-size:11px;font-weight:750;color:#287ed6;letter-spacing:.1em}
+#gcl-connect h1{margin:7px 0 9px;font-size:30px;color:#173b65}
+#gcl-connect .cn-intro{max-width:650px;color:#6686a8;font-size:13px;line-height:1.7}
+#gcl-connect .cn-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:18px;max-width:980px;margin-top:27px}
+#gcl-connect .cn-card{padding:25px;border:1px solid #d8eafa;border-radius:19px;background:#ffffffc9;box-shadow:0 12px 32px #4891cf15}
+#gcl-connect .cn-card h2{margin:0 0 7px;font-size:18px;color:#214d78}
+#gcl-connect .cn-card p,#gcl-connect .cn-card li{font-size:12px;line-height:1.7;color:#6483a2}
+#gcl-connect .cn-card ol{padding-left:20px}
+#gcl-connect .cn-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:19px}
+#gcl-connect .cn-actions button,#gcl-connect .cn-guide-button{border:1px solid #a8d0f4;border-radius:10px;background:#eef7ff;color:#226dbb;padding:10px 14px;font-size:12px;font-weight:700}
+#gcl-connect .cn-actions .cn-host{background:#2084eb;color:white;border-color:#2084eb}
+#gcl-connect .cn-room-status{margin-top:17px;padding:12px 14px;border-radius:10px;background:#e8f4ff;color:#356f9d;font-size:12px;overflow-wrap:anywhere}
+#gcl-connect .cn-note{margin-top:14px;font-size:11px;color:#6686a8;line-height:1.6}
+#gcl-connect .cn-footer{display:flex;justify-content:space-between;max-width:980px;margin-top:30px;color:#7190ae;font-size:10px}
+.gcl-modal{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:20px;background:#173d6680}
+.gcl-modal[hidden]{display:none!important}
+.gcl-modal-card{width:min(480px,100%);max-height:90vh;overflow:auto;padding:27px;border:1px solid #d9eafb;border-radius:20px;background:#fbfdff;box-shadow:0 25px 70px #102d5366;color:#264f77;font-size:13px;line-height:1.65}
+.gcl-modal-card h2{margin:0 0 9px;font-size:21px;color:#173b65}
+.gcl-modal-card p{margin:0 0 13px}
+.gcl-modal-card ol{padding-left:21px}
+.gcl-modal-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-top:20px}
+.gcl-modal-actions button{border:1px solid #abcff0;border-radius:10px;padding:10px 16px;background:#eff7ff;color:#2873bd;font-size:12px;font-weight:700}
+.gcl-modal-actions .gcl-modal-primary{border-color:#1687ef;background:#1687ef;color:white}
+.gcl-update-controls{display:flex;align-items:center;gap:12px}
+.gcl-update-progress{display:flex;align-items:center;gap:8px;min-width:180px}
+.gcl-update-progress progress{width:135px;height:9px;accent-color:#1687ef}
+.gcl-update-progress span{min-width:35px;text-align:right;font-size:12px;color:#2873bd}
+.gcl-update-progress[hidden]{display:none}
+@media(max-width:700px){#gcl-connect .cn-top{height:98px;padding:14px 18px;align-items:flex-start}#gcl-connect .cn-nav{top:55px;gap:0}#gcl-connect .cn-nav button{padding:8px;font-size:12px}#gcl-connect .cn-main{height:calc(100% - 98px);padding:25px 18px 50px}#gcl-connect .cn-grid{grid-template-columns:1fr}#gcl-connect h1{font-size:25px}}
 #blocklight-mockup .bl-instance-sheet,#blocklight-download .dl-cart-sheet{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:opacity .18s ease}
 #blocklight-mockup .bl-instance-sheet{opacity:0}
 #blocklight-mockup .bl-instance-sheet.is-open,#blocklight-download .dl-cart-sheet.is-open{opacity:1}
@@ -372,7 +722,7 @@ Total output lines: 833
     <div class="bl-window bl-split">
       <header class="bl-top">
         <div class="bl-brand"><div class="bl-mark">G</div><div><div class="bl-brand-name">GCL</div><div class="bl-brand-sub">Glow Craft Launcher</div></div></div>
-        <nav class="bl-nav" aria-label="主导航"><button type="button" class="active cursor-interaction">首页</button><button type="button" class="cursor-interaction">下载</button><button type="button" class="cursor-interaction">设置</button></nav>
+        <nav class="bl-nav" aria-label="主导航"><button type="button" class="active cursor-interaction">首页</button><button type="button" class="cursor-interaction">下载</button><button type="button" class="cursor-interaction">连接模式</button><button type="button" class="cursor-interaction">设置</button></nav>
         <button type="button" class="bl-close cursor-interaction" aria-label="关闭启动器" data-tooltip="关闭"><i data-lucide="x" aria-hidden="true"></i></button>
       </header>
       <main class="bl-main">
@@ -394,10 +744,8 @@ Total output lines: 833
             <div class="bl-directory-wrap"><button type="button" class="bl-secondary bl-directory cursor-interaction" aria-expanded="false"><i data-lucide="folder-open" aria-hidden="true"></i><span>游戏目录 · First</span><i data-lucide="chevron-down" aria-hidden="true"></i></button><div class="bl-menu bl-directory-menu" hidden></div></div>
             <button type="button" class="bl-secondary bl-settings cursor-interaction"><i data-lucide="settings-2" aria-hidden="true"></i>版本设置</button>
           </div>
-          <div class="bl-room-actions" aria-label="Minecraft 联机"><button type="button" class="bl-host-room cursor-interaction">创建联机房间</button><button type="button" class="bl-join-room cursor-interaction">加入好友房间</button><button type="button" class="bl-copy-room cursor-interaction" hidden>复制地址</button><button type="button" class="bl-stop-room cursor-interaction" hidden>关闭房间</button></div>
-          <div class="bl-room-note" aria-live="polite">房主先在游戏内选择“对局域网开放”；地址请只分享给好友，当前没有 GCL 房间密码。</div>
         </div>
-        <div class="bl-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.0</b></span></div>
+        <div class="bl-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.2</b></span></div>
       </main>
       <div class="bl-settings-sheet" hidden><div class="bl-settings-card"><strong>版本设置</strong><p>这里将设置当前选中版本的 Java、内存与启动参数。</p><button type="button" class="cursor-interaction">返回首页</button></div></div>
       <div class="bl-instance-sheet" hidden>
@@ -424,7 +772,7 @@ Total output lines: 833
     <div class="dl-window">
       <header class="dl-top">
         <div class="dl-brand"><div class="dl-mark">G</div><div><div class="dl-brand-name">GCL</div><div class="dl-brand-sub">Glow Craft Launcher</div></div></div>
-        <nav class="dl-nav" aria-label="主导航"><button type="button" class="cursor-interaction">首页</button><button type="button" class="active cursor-interaction">下载</button><button type="button" class="cursor-interaction">设置</button></nav>
+        <nav class="dl-nav" aria-label="主导航"><button type="button" class="cursor-interaction">首页</button><button type="button" class="active cursor-interaction">下载</button><button type="button" class="cursor-interaction">连接模式</button><button type="button" class="cursor-interaction">设置</button></nav>
         <button type="button" class="dl-close cursor-interaction" aria-label="关闭启动器" data-tooltip="关闭"><i data-lucide="x" aria-hidden="true"></i></button>
       </header>
       <main class="dl-main">
@@ -450,12 +798,22 @@ Total output lines: 833
             <div class="dl-install-row"><div class="dl-auto"><i data-lucide="circle-check" aria-hidden="true"></i>Java 与依赖自动准备</div><button type="button" class="dl-install cursor-interaction">下载并安装</button></div>
           </section>
         </div>
-        <div class="dl-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.0</b></span></div>
+        <div class="dl-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.2</b></span></div>
       </main>
       <div class="dl-toast" role="status" aria-live="polite" hidden></div>
     </div>
   </section>
 </div>
+</div>
+<div class="gcl-page" data-page="gcl-connect" hidden>
+<div id="gcl-connect"><div class="cn-window">
+  <header class="cn-top"><div class="cn-brand"><div class="cn-mark">G</div><div><div class="cn-brand-name">GCL</div><div class="cn-brand-sub">Glow Craft Launcher</div></div></div><nav class="cn-nav" aria-label="主导航"><button type="button">首页</button><button type="button">下载</button><button type="button" class="active">连接模式</button><button type="button">设置</button></nav><button type="button" class="cn-close" aria-label="关闭启动器"><i data-lucide="x" aria-hidden="true"></i></button></header>
+  <main class="cn-main"><div class="cn-kicker">FRIENDS ONLINE</div><h1>连接模式</h1><p class="cn-intro">把 Minecraft 单人世界分享给不同网络的好友。GCL 使用你自己的 SakuraFrp 访问密钥和内置 frpc 建立 TCP 穿透隧道；好友用完整的域名或 IP:端口加入。</p>
+    <div class="cn-grid"><section class="cn-card"><h2>创建房间</h2><p>先启动游戏并进入单人世界，选择“对局域网开放”，记下游戏显示的端口，再回到这里创建房间。</p><div class="cn-actions"><button type="button" class="cn-host">创建联机房间</button><button type="button" class="cn-copy" hidden>复制地址</button><button type="button" class="cn-stop" hidden>关闭房间</button></div><div class="cn-room-status" role="status" aria-live="polite">当前没有开启房间</div></section>
+    <section class="cn-card"><h2>加入好友</h2><p>向房主获取完整地址，选择对应的游戏实例，然后启动并连接。双方游戏版本和所需模组应一致。</p><div class="cn-actions"><button type="button" class="cn-join">加入好友房间</button><button type="button" class="cn-guide-button">查看连接教程</button></div><div class="cn-note">这里没有 GCL 房间密码。仅把地址分享给可信好友；五位局域网端口不能直接用于跨网连接。</div></section></div>
+    <div class="cn-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i> <b class="gcl-version-label">v0.7.2</b></span></div>
+  </main>
+</div></div>
 </div>
 <div class="gcl-page" data-page="glow-settings" hidden>
 <div id="glow-settings">
@@ -463,7 +821,7 @@ Total output lines: 833
     <div class="gs-window">
       <header class="gs-top">
         <div class="gs-brand"><div class="gs-mark">G</div><div><div class="gs-brand-name">GCL</div><div class="gs-brand-sub">Glow Craft Launcher</div></div></div>
-        <nav class="gs-nav" aria-label="主导航"><button type="button">首页</button><button type="button">下载</button><button type="button" class="active">设置</button></nav>
+        <nav class="gs-nav" aria-label="主导航"><button type="button">首页</button><button type="button">下载</button><button type="button">连接模式</button><button type="button" class="active">设置</button></nav>
         <button type="button" class="gs-close cursor-interaction" aria-label="关闭启动器"><i data-lucide="x" aria-hidden="true"></i></button>
       </header>
       <main class="gs-main">
@@ -514,16 +872,19 @@ Total output lines: 833
             <div class="gs-row"><div class="gs-row-main"><div class="gs-row-title">版本信息</div><div class="gs-row-desc">当前预览设计 · GCL</div></div><span class="gs-chip">macOS</span></div>
             <div class="gs-row"><div class="gs-row-main"><div class="gs-row-title">启动器更新</div><div class="gs-row-desc gcl-update-status">正在读取更新状态…</div></div><button type="button" class="gs-soft cursor-interaction gcl-check-update">检查更新</button></div>
             <div class="gcl-update-source"><label>更新源地址 <input class="gcl-update-url" type="url" placeholder="https://…/update.json" spellcheck="false"></label><button type="button" class="gs-soft gcl-save-update-url">保存地址</button></div>
-            <div class="gcl-update-actions" hidden><div class="gcl-update-notes"></div><button type="button" class="gcl-update-primary">下载更新</button></div>
+            <div class="gcl-update-actions" hidden><div class="gcl-update-notes"></div><div class="gcl-update-controls"><div class="gcl-update-progress" hidden><progress max="100" value="0"></progress><span>0%</span></div><button type="button" class="gcl-update-primary">下载更新</button></div></div>
             <div class="gs-row"><div class="gs-row-main"><div class="gs-row-title">诊断日志</div><div class="gs-row-desc">下载、登录或启动失败时，可从这里找到错误记录。</div></div><button type="button" class="gs-soft cursor-interaction" data-preview-action="打开诊断日志">查看日志</button></div>
             <div class="gs-row"><div class="gs-row-main"><div class="gs-row-title">开源与许可</div><div class="gs-row-desc">查看使用的开源组件和授权说明。</div></div><button type="button" class="gs-soft cursor-interaction" data-preview-action="查看开源许可">查看</button></div>
           </section>
         </div>
-        <div class="gs-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.0</b></span></div>
+        <div class="gs-footer"><span>Glow Craft Launcher</span><span><i class="gcl-platform-label">macOS</i><b class="gcl-version-label">v0.7.2</b></span></div>
       </main>
       <div class="gs-toast" role="status" aria-live="polite" hidden></div>
     </div>
   </section>
 </div>
 </div>
+<div class="gcl-modal" id="gcl-connect-prompt" hidden><div class="gcl-modal-card" role="dialog" aria-modal="true" aria-labelledby="gcl-connect-prompt-title"><h2 id="gcl-connect-prompt-title">需要连接教程吗？</h2><p>连接模式使用 SakuraFrp 的 TCP 内网穿透。房主在单人世界开放局域网后，GCL 会创建隧道并生成好友可用的完整地址。</p><div class="gcl-modal-actions"><button type="button" data-connect-prompt="later">稍后再看</button><button type="button" class="gcl-modal-primary" data-connect-prompt="guide">查看教程</button></div></div></div>
+<div class="gcl-modal" id="gcl-connect-guide" hidden><div class="gcl-modal-card" role="dialog" aria-modal="true" aria-labelledby="gcl-connect-guide-title"><h2 id="gcl-connect-guide-title">连接模式教程</h2><ol><li>房主和好友安装相同的 Minecraft 版本及所需模组。</li><li>房主进入单人世界，选择“对局域网开放”，记下游戏显示的局域网端口。</li><li>房主点击“创建联机房间”，首次使用时按提示绑定自己的 SakuraFrp 访问密钥，再输入端口。</li><li>等待生成完整地址，将“域名或 IP:端口”发给可信好友。</li><li>好友点击“加入好友房间”，粘贴完整地址并启动游戏。</li><li>结束后由房主点击“关闭房间”。</li></ol><p>GCL 内置 frpc，通过 SakuraFrp 创建 TCP 隧道。当前没有房间密码；跨网联机仍需用真实双端环境验证。</p><div class="gcl-modal-actions"><button type="button" class="gcl-modal-primary" data-connect-guide-close>知道了</button></div></div></div>
+<div class="gcl-modal" id="gcl-update-prompt" hidden><div class="gcl-modal-card" role="dialog" aria-modal="true" aria-labelledby="gcl-update-prompt-title"><h2 id="gcl-update-prompt-title">发现新版本</h2><p class="gcl-update-prompt-copy"></p><div class="gcl-update-progress" hidden><progress max="100" value="0"></progress><span>0%</span></div><div class="gcl-modal-actions"><button type="button" class="gcl-update-later">稍后再说</button><button type="button" class="gcl-modal-primary gcl-update-action">下载更新</button></div></div></div>
 <div class="gcl-status" role="status" hidden></div><script src="qrc:///qtwebchannel/qwebchannel.js"></script><script src="skinview3d.min.js"></script><script src="lucide.min.js"></script><script src="ui.js"></script></body></html>
