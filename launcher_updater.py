@@ -18,7 +18,7 @@ import platform
 from pathlib import Path
 from urllib.parse import urlparse
 
-APP_VERSION = "0.7.1"
+APP_VERSION = "0.7.2"
 BUNDLE_ID = "cn.glowcraft.launcher"
 APP_NAME = "Glow Craft Launcher.app"
 MAX_ARCHIVE = 900 * 1024 * 1024
@@ -132,19 +132,24 @@ def download_and_stage(release: dict, app_data: Path, progress=lambda message: N
     stage_dir = Path(tempfile.mkdtemp(prefix="stage-", dir=root))
     archive = stage_dir / "update.zip"
     try:
-        progress("正在下载更新…")
+        progress({"phase": "download", "received": 0, "total": expected_size})
         request = urllib.request.Request(url, headers={"User-Agent": f"GlowCraftLauncher/{APP_VERSION}"})
         digest = hashlib.sha256()
         size = 0
         with urllib.request.urlopen(request, timeout=30) as response, archive.open("wb") as output:
             if hasattr(response, "geturl"):
                 https_url(response.geturl())
+            last_percent = -1
             while block := response.read(1024 * 1024):
                 size += len(block)
                 if size > MAX_ARCHIVE or size > expected_size:
                     raise ValueError("更新文件超过声明大小")
                 digest.update(block)
                 output.write(block)
+                percent = min(100, size * 100 // expected_size)
+                if percent != last_percent:
+                    progress({"phase": "download", "received": size, "total": expected_size})
+                    last_percent = percent
         if size != expected_size or digest.hexdigest() != expected_hash:
             raise ValueError("更新文件校验失败，请重新检查更新")
         progress("正在验证安装包…")
